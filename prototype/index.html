@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoultryGPT 原型展示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.min.js"></script>
+    <style>
+        /* iPhone 15 Pro 尺寸: 393×852 像素 */
+        .iphone-frame {
+            width: 393px;
+            height: 852px;
+            border-radius: 47px;
+            border: 8px solid #1f2937;
+            background: #000;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 39px;
+            overflow: hidden;
+            background: #fff;
+        }
+        
+        /* 动态岛 */
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px;
+            height: 37px;
+            background: #000;
+            border-radius: 19px;
+            z-index: 1000;
+        }
+        
+        .prototype-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        @media (max-width: 1200px) {
+            .prototype-container {
+                gap: 30px;
+                padding: 30px 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .prototype-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                padding: 20px 10px;
+            }
+        }
+        
+        .prototype-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .prototype-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 39px;
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-container">
+        <!-- 主聊天界面 -->
+        <div class="prototype-item">
+            <h2 class="prototype-title">主聊天界面</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="iphone-screen">
+                    <iframe src="chat.html"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 侧边栏历史记录 -->
+        <div class="prototype-item">
+            <h2 class="prototype-title">历史记录侧边栏</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="iphone-screen">
+                    <iframe src="history.html"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 设置页面 -->
+        <div class="prototype-item">
+            <h2 class="prototype-title">设置页面</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="iphone-screen">
+                    <iframe src="settings.html"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

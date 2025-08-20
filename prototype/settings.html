@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoultryGPT - 设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.min.js"></script>
+    <style>
+        .settings-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #0052d9 0%, #266fe8 100%);
+            color: white;
+            padding: 16px;
+            padding-top: 56px; /* 为动态岛留出空间 */
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0, 82, 217, 0.2);
+        }
+        
+        .back-button {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .settings-group {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .settings-item {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .settings-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .settings-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .settings-label {
+            font-size: 16px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        .settings-item-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .settings-value {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .arrow-icon {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .external-icon {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .appearance-controls {
+            display: flex;
+            gap: 4px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 2px;
+        }
+        
+        .appearance-option {
+            flex: 1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+        
+        .appearance-option.active {
+            background: white;
+            color: #0052d9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logout-section {
+            padding: 0 16px 32px;
+        }
+        
+        .logout-button {
+            width: 100%;
+            padding: 14px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .logout-button:hover {
+            background: #b91c1c;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px;
+            max-width: 320px;
+            width: 100%;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .modal-content {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .modal-button {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-button.primary {
+            background: #0052d9;
+            color: white;
+            border-color: #0052d9;
+        }
+        
+        .modal-button.primary:hover {
+            background: #0046b8;
+        }
+        
+        .modal-button:hover {
+            background: #f9fafb;
+        }
+        
+        .language-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .language-option {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .language-option:last-child {
+            border-bottom: none;
+        }
+        
+        .language-option:hover {
+            background: #f9fafb;
+        }
+        
+        .language-option.selected {
+            color: #0052d9;
+            background: #f0f7ff;
+        }
+        
+        .check-icon {
+            color: #0052d9;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- 顶部标题栏 -->
+        <div class="header">
+            <div class="back-button" onclick="goBack()">←</div>
+            <div class="header-title">设置</div>
+        </div>
+        
+        <!-- 设置内容 -->
+        <div class="settings-content">
+            <!-- 第一组：账号管理 -->
+            <div class="settings-group">
+                <div class="settings-item" onclick="openAccountManagement()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">👤</div>
+                        <div class="settings-label">账号管理</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="arrow-icon">›</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第二组：应用设置 -->
+            <div class="settings-group">
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">🌙</div>
+                        <div class="settings-label">外观</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="appearance-controls">
+                            <div class="appearance-option" data-theme="light" onclick="setTheme('light')">白天</div>
+                            <div class="appearance-option" data-theme="dark" onclick="setTheme('dark')">夜晚</div>
+                            <div class="appearance-option active" data-theme="auto" onclick="setTheme('auto')">跟随系统</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-item" onclick="openLanguageSettings()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">🌐</div>
+                        <div class="settings-label">语言</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="settings-value">简体中文</div>
+                        <div class="arrow-icon">›</div>
+                    </div>
+                </div>
+                
+                <div class="settings-item" onclick="openKnowledgeBase()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">📚</div>
+                        <div class="settings-label">添加知识库</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="arrow-icon">›</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第三组：关于和帮助 -->
+            <div class="settings-group">
+                <div class="settings-item" onclick="openAbout()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">ℹ️</div>
+                        <div class="settings-label">关于 PoultryGPT</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="arrow-icon">›</div>
+                    </div>
+                </div>
+                
+                <div class="settings-item" onclick="openGitHub()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">💻</div>
+                        <div class="settings-label">GitHub</div>
+                    </div>
+                    <div class="settings-item-right">
+                        <div class="external-icon">↗</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 退出登录 -->
+        <div class="logout-section">
+            <button class="logout-button" onclick="showLogoutConfirm()">退出登录</button>
+        </div>
+    </div>
+    
+    <!-- 退出登录确认弹窗 -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal">
+            <div class="modal-title">退出登录</div>
+            <div class="modal-content">确定要退出登录吗？退出后需要重新登录才能使用。</div>
+            <div class="modal-buttons">
+                <button class="modal-button" onclick="hideLogoutConfirm()">取消</button>
+                <button class="modal-button primary" onclick="confirmLogout()">退出</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 语言选择弹窗 -->
+    <div class="modal-overlay" id="languageModal">
+        <div class="modal">
+            <div class="modal-title">选择语言</div>
+            <div class="language-list">
+                <div class="language-option selected" data-lang="zh-CN">
+                    <span>简体中文</span>
+                    <span class="check-icon">✓</span>
+                </div>
+                <div class="language-option" data-lang="zh-TW">
+                    <span>繁體中文</span>
+                </div>
+                <div class="language-option" data-lang="en-US">
+                    <span>English</span>
+                </div>
+                <div class="language-option" data-lang="ja-JP">
+                    <span>日本語</span>
+                </div>
+                <div class="language-option" data-lang="ko-KR">
+                    <span>한국어</span>
+                </div>
+            </div>
+            <div class="modal-buttons" style="margin-top: 16px;">
+                <button class="modal-button" onclick="hideLanguageModal()">取消</button>
+                <button class="modal-button primary" onclick="confirmLanguageChange()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTheme = 'auto';
+        let selectedLanguage = 'zh-CN';
+        
+        // 返回上一页
+        function goBack() {
+            // 实际应用中这里会导航回上一页
+            alert('返回上一页');
+        }
+        
+        // 设置主题
+        function setTheme(theme) {
+            currentTheme = theme;
+            
+            // 更新UI
+            document.querySelectorAll('.appearance-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.theme === theme) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // 实际应用中这里会应用主题
+            console.log('设置主题:', theme);
+        }
+        
+        // 打开账号管理
+        function openAccountManagement() {
+            alert('打开账号管理页面');
+        }
+        
+        // 打开语言设置
+        function openLanguageSettings() {
+            document.getElementById('languageModal').style.display = 'flex';
+        }
+        
+        // 隐藏语言选择弹窗
+        function hideLanguageModal() {
+            document.getElementById('languageModal').style.display = 'none';
+        }
+        
+        // 确认语言更改
+        function confirmLanguageChange() {
+            const selected = document.querySelector('.language-option.selected');
+            if (selected) {
+                selectedLanguage = selected.dataset.lang;
+                // 更新设置页面显示的语言
+                document.querySelector('.settings-value').textContent = selected.textContent.trim();
+            }
+            hideLanguageModal();
+            // 实际应用中这里会应用语言设置
+            console.log('设置语言:', selectedLanguage);
+        }
+        
+        // 语言选项点击事件
+        document.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // 移除其他选中状态
+                document.querySelectorAll('.language-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.querySelector('.check-icon').style.display = 'none';
+                });
+                
+                // 设置当前选中
+                this.classList.add('selected');
+                const checkIcon = this.querySelector('.check-icon');
+                if (!checkIcon) {
+                    const icon = document.createElement('span');
+                    icon.className = 'check-icon';
+                    icon.textContent = '✓';
+                    this.appendChild(icon);
+                } else {
+                    checkIcon.style.display = 'inline';
+                }
+            });
+        });
+        
+        // 打开知识库
+        function openKnowledgeBase() {
+            alert('打开知识库管理页面');
+        }
+        
+        // 打开关于页面
+        function openAbout() {
+            alert('关于 PoultryGPT\n\n版本：1.0.0\n一个专业的家禽养殖AI助手\n\n© 2024 PoultryGPT Team');
+        }
+        
+        // 打开GitHub
+        function openGitHub() {
+            // 实际应用中这里会打开外部链接
+            if (confirm('即将跳转到GitHub页面，是否继续？')) {
+                window.open('https://github.com/poultry-gpt', '_blank');
+            }
+        }
+        
+        // 显示退出登录确认
+        function showLogoutConfirm() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        
+        // 隐藏退出登录确认
+        function hideLogoutConfirm() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+        
+        // 确认退出登录
+        function confirmLogout() {
+            // 实际应用中这里会清除用户数据并跳转到登录页面
+            alert('已退出登录');
+            hideLogoutConfirm();
+        }
+        
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
