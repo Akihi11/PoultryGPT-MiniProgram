@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tdesign-mobile-web@1.4.2/dist/index.min.js"></script>
+    <!-- Markdown渲染支持 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <!-- 代码高亮支持 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
     <style>
         .chat-container {
             height: 100vh;
@@ -133,28 +138,60 @@
         .message {
             margin-bottom: 16px;
             display: flex;
+            gap: 12px;
         }
         
         .message.user {
-            justify-content: flex-end;
+            flex-direction: row-reverse;
         }
         
         .message.ai {
-            justify-content: flex-start;
+            flex-direction: row;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            border: 2px solid #e6ebf0;
+        }
+        
+        .message.user .avatar {
+            background: linear-gradient(135deg, #0052d9 0%, #266fe8 100%);
+            color: white;
+            border-color: #0052d9;
+        }
+        
+        .message.ai .avatar {
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+            color: white;
+            border-color: #52c41a;
+        }
+        
+        .message-content {
+            flex: 1;
+            min-width: 0;
         }
         
         .message-bubble {
-            max-width: 80%;
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
+            word-wrap: break-word;
         }
         
         .message.user .message-bubble {
             background: linear-gradient(135deg, #0052d9 0%, #266fe8 100%);
             color: white;
             border-bottom-right-radius: 4px;
+            margin-left: 20%;
         }
         
         .message.ai .message-bubble {
@@ -162,6 +199,95 @@
             color: #374151;
             border: 1px solid #e6ebf0;
             border-bottom-left-radius: 4px;
+            margin-right: 20%;
+        }
+        
+        /* Markdown样式 */
+        .message-bubble h1,
+        .message-bubble h2,
+        .message-bubble h3,
+        .message-bubble h4,
+        .message-bubble h5,
+        .message-bubble h6 {
+            margin: 12px 0 8px 0;
+            font-weight: 600;
+        }
+        
+        .message-bubble h1 { font-size: 18px; }
+        .message-bubble h2 { font-size: 16px; }
+        .message-bubble h3 { font-size: 15px; }
+        .message-bubble h4 { font-size: 14px; }
+        
+        .message-bubble p {
+            margin: 8px 0;
+        }
+        
+        .message-bubble ul,
+        .message-bubble ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .message-bubble li {
+            margin: 4px 0;
+        }
+        
+        .message-bubble code {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .message.user .message-bubble code {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .message-bubble pre {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        
+        .message-bubble pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .message-bubble blockquote {
+            border-left: 4px solid #e6ebf0;
+            padding-left: 12px;
+            margin: 8px 0;
+            color: #6b7280;
+        }
+        
+        .message-bubble strong {
+            font-weight: 600;
+        }
+        
+        .message-bubble em {
+            font-style: italic;
+        }
+        
+        .message-bubble table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+        
+        .message-bubble th,
+        .message-bubble td {
+            border: 1px solid #e6ebf0;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .message-bubble th {
+            background: #f8f9fa;
+            font-weight: 600;
         }
         
         .input-footer {
@@ -306,56 +432,35 @@
         </div>
         
         <!-- 聊天内容区 -->
-        <div class="chat-content">
+        <div class="chat-content" id="chatContent">
             <!-- 用户消息 -->
             <div class="message user">
-                <div class="message-bubble">
-                    你好，我想了解一下肉鸡养殖的基本要求有哪些？
+                <div class="avatar">👤</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        你好，我想了解一下肉鸡养殖的基本要求有哪些？
+                    </div>
                 </div>
             </div>
             
             <!-- 任务编排模块 -->
-            <div class="task-orchestration">
+            <div class="task-orchestration" id="taskOrchestration">
                 <div class="task-header" onclick="toggleTaskSteps()">
                     <div class="task-title">任务编排</div>
                     <div class="expand-icon" id="expandIcon">▼</div>
                 </div>
                 <div class="task-steps" id="taskSteps">
-                    <div class="task-step">
-                        <div class="step-check">✓</div>
-                        <span>开始</span>
-                    </div>
-                    <div class="task-step">
-                        <div class="step-check">✓</div>
-                        <span>列表操作</span>
-                    </div>
-                    <div class="task-step">
-                        <div class="step-check">✓</div>
-                        <span>条件分支</span>
-                    </div>
-                    <div class="task-step">
-                        <div class="step-check">✓</div>
-                        <span>问题分类</span>
-                    </div>
-                    <div class="task-step">
-                        <div class="step-check">✓</div>
-                        <span>回复</span>
-                    </div>
+                    <!-- 动态生成的步骤 -->
                 </div>
             </div>
             
             <!-- AI 回复 -->
             <div class="message ai">
-                <div class="message-bubble">
-                    肉鸡养殖的基本要求主要包括以下几个方面：
-                    
-                    1. **鸡舍环境**：保持适宜的温度（18-25℃）、湿度（50-70%）和通风
-                    2. **饲料管理**：提供营养均衡的饲料，定时定量喂养
-                    3. **饮水系统**：确保清洁充足的饮水供应
-                    4. **疫病防控**：制定完善的免疫程序和生物安全措施
-                    5. **密度控制**：合理安排饲养密度，避免过度拥挤
-                    
-                    您想了解哪个方面的详细信息呢？
+                <div class="avatar">🐤</div>
+                <div class="message-content">
+                    <div class="message-bubble" id="aiResponse">
+                        <!-- 这里将由JavaScript渲染Markdown内容 -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -385,6 +490,114 @@
     </div>
     
     <script>
+        // 配置marked选项
+        marked.setOptions({
+            highlight: function(code, language) {
+                if (language && hljs.getLanguage(language)) {
+                    return hljs.highlight(code, { language }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+        
+        // 模拟不同场景的工作流步骤
+        const workflowTemplates = {
+            'breeding_basics': [
+                { name: '问题分析', status: 'completed' },
+                { name: '知识库检索', status: 'completed' },
+                { name: '专业知识匹配', status: 'completed' },
+                { name: '内容生成', status: 'completed' },
+                { name: '格式化输出', status: 'completed' }
+            ],
+            'disease_diagnosis': [
+                { name: '症状识别', status: 'completed' },
+                { name: '病因分析', status: 'completed' },
+                { name: '诊断匹配', status: 'completed' },
+                { name: '治疗方案生成', status: 'completed' },
+                { name: '风险评估', status: 'completed' },
+                { name: '预防建议', status: 'completed' }
+            ],
+            'feed_formula': [
+                { name: '需求分析', status: 'completed' },
+                { name: '生长阶段判断', status: 'completed' },
+                { name: '营养计算', status: 'completed' },
+                { name: '配方优化', status: 'completed' },
+                { name: '成本评估', status: 'completed' }
+            ]
+        };
+        
+        // 当前示例使用的工作流类型
+        let currentWorkflow = 'breeding_basics';
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渲染任务编排步骤
+            renderTaskSteps(currentWorkflow);
+            
+            // 渲染AI回复（Markdown格式）
+            const aiResponseMarkdown = `## 肉鸡养殖的基本要求
+
+肉鸡养殖的基本要求主要包括以下几个关键方面：
+
+### 🏠 1. 鸡舍环境
+- **温度控制**：保持适宜的温度（18-25℃）
+- **湿度管理**：控制湿度在50-70%之间
+- **通风系统**：确保良好的空气流通
+
+### 🍽️ 2. 饲料管理
+- 提供 **营养均衡** 的饲料配方
+- 实行定时定量喂养制度
+- 根据生长阶段调整饲料结构
+
+### 💧 3. 饮水系统
+- 确保清洁充足的饮水供应
+- 定期清洗和消毒饮水设备
+- 监测水质安全
+
+### 🛡️ 4. 疫病防控
+- 制定完善的免疫程序
+- 建立严格的生物安全措施
+- 定期健康检查
+
+### 📏 5. 密度控制
+- 合理安排饲养密度
+- 避免过度拥挤导致的应激
+- 根据鸡舍面积科学配置
+
+> **提示**：以上各个方面相互关联，需要综合考虑和统一管理。
+
+您想了解哪个方面的详细信息呢？`;
+            
+            renderMarkdown('aiResponse', aiResponseMarkdown);
+        });
+        
+        // 渲染任务编排步骤
+        function renderTaskSteps(workflowType) {
+            const steps = workflowTemplates[workflowType] || workflowTemplates['breeding_basics'];
+            const stepsContainer = document.getElementById('taskSteps');
+            
+            stepsContainer.innerHTML = steps.map(step => `
+                <div class="task-step">
+                    <div class="step-check">✓</div>
+                    <span>${step.name}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 渲染Markdown内容
+        function renderMarkdown(elementId, markdownText) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = marked.parse(markdownText);
+                // 高亮代码块
+                element.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        }
+        
         // 切换任务步骤显示
         function toggleTaskSteps() {
             const steps = document.getElementById('taskSteps');
@@ -426,12 +639,217 @@
         // 发送消息
         function sendMessage() {
             const input = document.getElementById('messageInput');
-            if (input.value.trim()) {
-                // 实际应用中这里会发送消息到服务器
-                alert('发送消息: ' + input.value);
+            const message = input.value.trim();
+            
+            if (message) {
+                // 添加用户消息
+                addUserMessage(message);
+                
+                // 清空输入框
                 input.value = '';
                 updateButtonState();
+                
+                // 模拟AI响应（延迟一点时间显示效果）
+                setTimeout(() => {
+                    simulateAIResponse(message);
+                }, 500);
             }
+        }
+        
+        // 添加用户消息
+        function addUserMessage(message) {
+            const chatContent = document.getElementById('chatContent');
+            const messageHTML = `
+                <div class="message user">
+                    <div class="avatar">👤</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ${escapeHtml(message)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatContent.insertAdjacentHTML('beforeend', messageHTML);
+            scrollToBottom();
+        }
+        
+        // 模拟AI响应
+        function simulateAIResponse(userMessage) {
+            const chatContent = document.getElementById('chatContent');
+            
+            // 根据用户消息选择合适的工作流
+            let workflowType = 'breeding_basics';
+            let responseMarkdown = '';
+            
+            if (userMessage.includes('病') || userMessage.includes('症状') || userMessage.includes('治疗')) {
+                workflowType = 'disease_diagnosis';
+                responseMarkdown = generateDiseaseResponse();
+            } else if (userMessage.includes('饲料') || userMessage.includes('配方') || userMessage.includes('营养')) {
+                workflowType = 'feed_formula';
+                responseMarkdown = generateFeedResponse();
+            } else {
+                responseMarkdown = generateGeneralResponse();
+            }
+            
+            // 添加任务编排
+            const orchestrationHTML = `
+                <div class="task-orchestration">
+                    <div class="task-header" onclick="toggleTaskSteps()">
+                        <div class="task-title">任务编排</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="task-steps" id="taskSteps-${Date.now()}">
+                        ${generateTaskStepsHTML(workflowType)}
+                    </div>
+                </div>
+            `;
+            
+            // 添加AI响应
+            const responseId = 'response-' + Date.now();
+            const messageHTML = `
+                ${orchestrationHTML}
+                <div class="message ai">
+                    <div class="avatar">🐤</div>
+                    <div class="message-content">
+                        <div class="message-bubble" id="${responseId}">
+                            <!-- Loading... -->
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatContent.insertAdjacentHTML('beforeend', messageHTML);
+            
+            // 模拟逐步执行工作流
+            simulateWorkflowExecution(workflowType, responseId, responseMarkdown);
+            
+            scrollToBottom();
+        }
+        
+        // 生成任务步骤HTML
+        function generateTaskStepsHTML(workflowType) {
+            const steps = workflowTemplates[workflowType] || workflowTemplates['breeding_basics'];
+            return steps.map(step => `
+                <div class="task-step">
+                    <div class="step-check">✓</div>
+                    <span>${step.name}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 模拟工作流执行过程
+        function simulateWorkflowExecution(workflowType, responseId, finalMarkdown) {
+            const steps = workflowTemplates[workflowType] || workflowTemplates['breeding_basics'];
+            let currentStep = 0;
+            
+            function executeNextStep() {
+                if (currentStep < steps.length) {
+                    // 这里可以添加步骤执行的视觉效果
+                    currentStep++;
+                    setTimeout(executeNextStep, 200);
+                } else {
+                    // 所有步骤完成，渲染最终回复
+                    renderMarkdown(responseId, finalMarkdown);
+                }
+            }
+            
+            executeNextStep();
+        }
+        
+        // 生成不同类型的响应
+        function generateDiseaseResponse() {
+            return `## 🏥 家禽疾病诊断与治疗
+
+根据您的描述，我为您提供以下建议：
+
+### 📋 常见症状分析
+- **呼吸道症状**：咳嗽、喘息、流鼻涕
+- **消化道症状**：腹泻、食欲不振、消瘦
+- **神经症状**：歪脖、转圈、瘫痪
+
+### 💊 基础治疗原则
+1. **隔离病鸡**：防止疫情扩散
+2. **对症治疗**：根据症状选择合适药物
+3. **支持疗法**：补充电解质和维生素
+4. **环境改善**：调整温湿度和通风
+
+> ⚠️ **重要提醒**：严重病例请及时联系兽医专业人士！
+
+具体需要什么帮助吗？`;
+        }
+        
+        function generateFeedResponse() {
+            return `## 🌾 饲料配方与营养管理
+
+针对您的饲料问题，我提供以下专业建议：
+
+### 📊 营养需求表
+
+| 生长阶段 | 蛋白质(%) | 能量(MJ/kg) | 赖氨酸(%) |
+|---------|-----------|-------------|-----------|
+| 0-3周    | 22-24     | 12.5-13.0   | 1.35-1.40 |
+| 4-6周    | 20-22     | 13.0-13.2   | 1.20-1.25 |
+| 7周-出栏  | 18-20     | 13.2-13.4   | 1.10-1.15 |
+
+### 🥗 配方要点
+- **玉米**：55-65%（主要能量来源）
+- **豆粕**：20-30%（蛋白质来源）
+- **麸皮**：3-8%（调节纤维）
+- **预混料**：4-5%（维生素矿物质）
+
+\`\`\`javascript
+// 简单配方计算示例
+function calculateFeed(weight, growthStage) {
+    const requirements = {
+        starter: { protein: 23, energy: 12.8 },
+        grower: { protein: 21, energy: 13.1 },
+        finisher: { protein: 19, energy: 13.3 }
+    };
+    return requirements[growthStage];
+}
+\`\`\`
+
+需要具体的配方计算吗？`;
+        }
+        
+        function generateGeneralResponse() {
+            return `## 🐔 家禽养殖专业建议
+
+感谢您的咨询！我为您提供以下专业指导：
+
+### 🎯 核心管理要点
+1. **环境控制**
+   - 温度：根据日龄调整（首日35°C，每周降2-3°C）
+   - 湿度：保持60-70%
+   - 光照：合理的光照程序
+
+2. **营养管理**
+   - 分阶段饲喂
+   - 清洁饮水
+   - 定期营养评估
+
+3. **健康监测**
+   - 日常观察
+   - 定期体重监测
+   - 预防免疫
+
+### 📈 效益提升建议
+> 💡 **小贴士**：记录详细的生产数据，有助于持续改进养殖效果。
+
+还有其他具体问题需要解答吗？`;
+        }
+        
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 滚动到底部
+        function scrollToBottom() {
+            const chatContent = document.getElementById('chatContent');
+            chatContent.scrollTop = chatContent.scrollHeight;
         }
         
         // 监听输入框变化
