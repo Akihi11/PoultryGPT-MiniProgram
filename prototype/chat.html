@@ -49,28 +49,55 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        .title {
+        .new-chat-icon {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            color: white;
+        }
+        
+        .new-chat-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-title {
             font-size: 18px;
             font-weight: 600;
-            cursor: pointer;
+            color: white;
             padding: 4px 8px;
             border-radius: 6px;
             transition: background-color 0.2s;
         }
         
-        .title:hover {
+        .header-title:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        .new-chat-icon {
-            font-size: 20px;
+        .title {
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            padding: 6px;
+            padding: 4px 8px;
             border-radius: 6px;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
-        .new-chat-icon:hover {
+        .dropdown-arrow {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            transition: transform 0.2s;
+        }
+        
+        .title:hover .dropdown-arrow {
+            color: white;
+        }
+        
+        .title:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
         
@@ -87,6 +114,25 @@
             border-radius: 12px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 将任务编排作为AI消息的一部分 */
+        .ai-message-container {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .ai-message-container .task-orchestration {
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 8px;
+            flex: 1;
+            margin-right: 20%;
+        }
+        
+        .ai-message-container .message {
+            margin-bottom: 0;
         }
         
         .task-header {
@@ -195,6 +241,15 @@
         }
         
         .message.ai .message-bubble {
+            background: white;
+            color: #374151;
+            border: 1px solid #e6ebf0;
+            border-bottom-left-radius: 4px;
+            margin-right: 20%;
+        }
+        
+        /* AI消息容器中的消息气泡样式 */
+        .ai-message-container .message-bubble {
             background: white;
             color: #374151;
             border: 1px solid #e6ebf0;
@@ -409,6 +464,14 @@
         .model-option:hover {
             background: #f3f4f6;
         }
+        
+        .welcome-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+        }
     </style>
 </head>
 <body>
@@ -417,18 +480,20 @@
         <div class="header">
             <div class="header-left">
                 <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+                <div class="new-chat-icon" onclick="newChat()">+</div>
             </div>
             
+            <div class="header-title">PoultryGPT</div>
+            
             <div class="title" onclick="toggleModelDropdown()" style="position: relative;">
-                PoultryGPT
+                模型切换
+                <span class="dropdown-arrow">▼</span>
                 <div class="model-dropdown" id="modelDropdown">
                     <div class="model-option">PoultryGPT-Turbo</div>
                     <div class="model-option">PoultryGPT-4</div>
                     <div class="model-option">Dify Workflow</div>
                 </div>
             </div>
-            
-            <div class="new-chat-icon" onclick="newChat()">✚</div>
         </div>
         
         <!-- 聊天内容区 -->
@@ -443,21 +508,22 @@
                 </div>
             </div>
             
-            <!-- 任务编排模块 -->
-            <div class="task-orchestration" id="taskOrchestration">
-                <div class="task-header" onclick="toggleTaskSteps()">
-                    <div class="task-title">任务编排</div>
-                    <div class="expand-icon" id="expandIcon">▼</div>
-                </div>
-                <div class="task-steps" id="taskSteps">
-                    <!-- 动态生成的步骤 -->
-                </div>
-            </div>
-            
-            <!-- AI 回复 -->
-            <div class="message ai">
+            <!-- 任务编排模块和AI回复 -->
+            <div class="ai-message-container">
                 <div class="avatar">🐤</div>
                 <div class="message-content">
+                    <!-- 任务编排模块 -->
+                    <div class="task-orchestration" id="taskOrchestration">
+                        <div class="task-header" onclick="toggleTaskSteps()">
+                            <div class="task-title">任务编排</div>
+                            <div class="expand-icon" id="expandIcon">▼</div>
+                        </div>
+                        <div class="task-steps" id="taskSteps">
+                            <!-- 动态生成的步骤 -->
+                        </div>
+                    </div>
+                    
+                    <!-- AI 回复 -->
                     <div class="message-bubble" id="aiResponse">
                         <!-- 这里将由JavaScript渲染Markdown内容 -->
                     </div>
@@ -624,16 +690,29 @@
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
         
-        // 新建对话
-        function newChat() {
-            // 实际应用中这里会清空聊天记录
-            alert('新建对话功能');
-        }
-        
         // 切换侧边栏
         function toggleSidebar() {
             // 实际应用中这里会显示/隐藏侧边栏
             alert('切换侧边栏功能');
+        }
+        
+        // 新建对话
+        function newChat() {
+            // 清空聊天内容
+            const chatContent = document.getElementById('chatContent');
+            chatContent.innerHTML = `
+                <div class="welcome-message">
+                    <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🐤</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #374151;">欢迎使用 PoultryGPT</div>
+                        <div style="font-size: 14px;">我是您的家禽养殖专业助手，有什么问题都可以问我</div>
+                    </div>
+                </div>
+            `;
+            
+            // 清空输入框
+            document.getElementById('messageInput').value = '';
+            updateButtonState();
         }
         
         // 发送消息
@@ -691,26 +770,22 @@
                 responseMarkdown = generateGeneralResponse();
             }
             
-            // 添加任务编排
-            const orchestrationHTML = `
-                <div class="task-orchestration">
-                    <div class="task-header" onclick="toggleTaskSteps()">
-                        <div class="task-title">任务编排</div>
-                        <div class="expand-icon">▼</div>
-                    </div>
-                    <div class="task-steps" id="taskSteps-${Date.now()}">
-                        ${generateTaskStepsHTML(workflowType)}
-                    </div>
-                </div>
-            `;
-            
-            // 添加AI响应
+            // 添加任务编排和AI响应
             const responseId = 'response-' + Date.now();
-            const messageHTML = `
-                ${orchestrationHTML}
-                <div class="message ai">
+            const orchestrationHTML = `
+                <div class="ai-message-container">
                     <div class="avatar">🐤</div>
                     <div class="message-content">
+                        <div class="task-orchestration">
+                            <div class="task-header" onclick="toggleTaskSteps()">
+                                <div class="task-title">任务编排</div>
+                                <div class="expand-icon">▼</div>
+                            </div>
+                            <div class="task-steps" id="taskSteps-${Date.now()}">
+                                ${generateTaskStepsHTML(workflowType)}
+                            </div>
+                        </div>
+                        
                         <div class="message-bubble" id="${responseId}">
                             <!-- Loading... -->
                         </div>
@@ -718,7 +793,8 @@
                 </div>
             `;
             
-            chatContent.insertAdjacentHTML('beforeend', messageHTML);
+            // 添加AI响应
+            chatContent.insertAdjacentHTML('beforeend', orchestrationHTML);
             
             // 模拟逐步执行工作流
             simulateWorkflowExecution(workflowType, responseId, responseMarkdown);

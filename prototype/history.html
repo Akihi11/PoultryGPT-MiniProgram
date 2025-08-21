@@ -23,6 +23,8 @@
             box-shadow: 0 2px 8px rgba(0, 82, 217, 0.2);
         }
         
+
+        
         .search-container {
             position: relative;
             display: flex;
@@ -82,6 +84,66 @@
             transition: all 0.2s;
             position: relative;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .history-item-content {
+            position: relative;
+            z-index: 2;
+            background: white;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 16px;
+            border-radius: 12px;
+        }
+        
+        .history-item-actions {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            z-index: 1;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .action-button {
+            width: 80px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            color: white;
+        }
+        
+        .action-button.rename {
+            background: #f59e0b;
+        }
+        
+        .action-button.rename:hover {
+            background: #d97706;
+        }
+        
+        .action-button.delete {
+            background: #dc2626;
+        }
+        
+        .action-button.delete:hover {
+            background: #b91c1c;
+        }
+        
+        /* 左滑展开状态 */
+        .history-item.sliding .history-item-content {
+            transform: translateX(-160px);
+        }
+        
+        .history-item.sliding .history-item-actions {
+            transform: translateX(0);
         }
         
         .history-item:hover {
@@ -206,40 +268,76 @@
         <!-- 历史记录列表 -->
         <div class="history-list" id="historyList">
             <!-- 历史记录项 -->
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item1')" onclick="openChat('item1')">
-                <div class="history-title">肉鸡养殖的基本要求</div>
-                <div class="history-preview">你好，我想了解一下肉鸡养殖的基本要求有哪些？肉鸡养殖的基本要求主要包括鸡舍环境、饲料管理...</div>
-                <div class="history-time">今天 14:32</div>
+            <div class="history-item" data-id="item1">
+                <div class="history-item-content" onclick="openChat('item1')">
+                    <div class="history-title">肉鸡养殖的基本要求</div>
+                    <div class="history-preview">你好，我想了解一下肉鸡养殖的基本要求有哪些？肉鸡养殖的基本要求主要包括鸡舍环境、饲料管理...</div>
+                    <div class="history-time">今天 14:32</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item1')">✏️</button>
+                    <button class="action-button delete" onclick="deleteChat('item1')">🗑️</button>
+                </div>
             </div>
             
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item2')" onclick="openChat('item2')">
-                <div class="history-title">疫苗接种时间表</div>
-                <div class="history-preview">请帮我制定一个肉鸡疫苗接种的时间表。根据肉鸡的生长周期，我为您制定了详细的疫苗接种计划...</div>
-                <div class="history-time">昨天 16:45</div>
+            <div class="history-item" data-id="item2">
+                <div class="history-item-content" onclick="openChat('item2')">
+                    <div class="history-title">疫苗接种时间表</div>
+                    <div class="history-preview">请帮我制定一个肉鸡疫苗接种的时间表。根据肉鸡的生长周期，我为您制定了详细的疫苗接种计划...</div>
+                    <div class="history-time">昨天 16:45</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item2')">✏️</button>
+                    <button class="action-button delete" onclick="deleteChat('item2')">🗑️</button>
+                </div>
             </div>
             
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item3')" onclick="openChat('item3')">
-                <div class="history-title">饲料配方优化建议</div>
-                <div class="history-preview">我的肉鸡现在30日龄，想优化一下饲料配方。30日龄的肉鸡正处于快速生长期，需要高蛋白高能量的饲料...</div>
-                <div class="history-time">2天前</div>
+            <div class="history-item" data-id="item3">
+                <div class="history-item-content" onclick="openChat('item3')">
+                    <div class="history-title">饲料配方优化建议</div>
+                    <div class="history-preview">我的肉鸡现在30日龄，想优化一下饲料配方。30日龄的肉鸡正处于快速生长期，需要高蛋白高能量的饲料...</div>
+                    <div class="history-time">2天前</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item3')">✏️</button>
+                    <button class="action-button delete" onclick="renameChat('item3')">🗑️</button>
+                </div>
             </div>
             
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item4')" onclick="openChat('item4')">
-                <div class="history-title">鸡舍通风系统设计</div>
-                <div class="history-preview">鸡舍通风不好，想了解通风系统的设计要点。良好的通风系统对肉鸡健康至关重要，主要包括自然通风和机械通风...</div>
-                <div class="history-time">3天前</div>
+            <div class="history-item" data-id="item4">
+                <div class="history-item-content" onclick="openChat('item4')">
+                    <div class="history-title">鸡舍通风系统设计</div>
+                    <div class="history-preview">鸡舍通风不好，想了解通风系统的设计要点。良好的通风系统对肉鸡健康至关重要，主要包括自然通风和机械通风...</div>
+                    <div class="history-time">3天前</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item4')">✏️</button>
+                    <button class="action-button delete" onclick="deleteChat('item4')">🗑️</button>
+                </div>
             </div>
             
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item5')" onclick="openChat('item5')">
-                <div class="history-title">疾病预防措施</div>
-                <div class="history-preview">如何预防肉鸡常见疾病？疾病预防是肉鸡养殖成功的关键，主要措施包括生物安全、免疫接种、环境控制...</div>
-                <div class="history-time">1周前</div>
+            <div class="history-item" data-id="item5">
+                <div class="history-item-content" onclick="openChat('item5')">
+                    <div class="history-title">疾病预防措施</div>
+                    <div class="history-preview">如何预防肉鸡常见疾病？疾病预防是肉鸡养殖成功的关键，主要措施包括生物安全、免疫接种、环境控制...</div>
+                    <div class="history-time">1周前</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item5')">✏️</button>
+                    <button class="action-button delete" onclick="deleteChat('item5')">🗑️</button>
+                </div>
             </div>
             
-            <div class="history-item" oncontextmenu="showContextMenu(event, 'item6')" onclick="openChat('item6')">
-                <div class="history-title">成本核算方法</div>
-                <div class="history-preview">请教一下肉鸡养殖的成本核算方法。肉鸡养殖成本主要包括固定成本和变动成本两部分...</div>
-                <div class="history-time">2周前</div>
+            <div class="history-item" data-id="item6">
+                <div class="history-item-content" onclick="openChat('item6')">
+                    <div class="history-title">成本核算方法</div>
+                    <div class="history-preview">请教一下肉鸡养殖的成本核算方法。肉鸡养殖成本主要包括固定成本和变动成本两部分...</div>
+                    <div class="history-time">2周前</div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="action-button rename" onclick="renameChat('item6')">✏️</button>
+                    <button class="action-button delete" onclick="renameChat('item6')">🗑️</button>
+                </div>
             </div>
         </div>
         
@@ -266,12 +364,79 @@
     <script>
         let currentChatId = null;
         let allHistoryItems = [];
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentSlideItem = null;
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 获取所有历史记录项
             allHistoryItems = Array.from(document.querySelectorAll('.history-item'));
+            
+            // 为每个历史记录项添加触摸事件
+            allHistoryItems.forEach(item => {
+                addTouchEvents(item);
+            });
         });
+        
+        // 添加触摸事件
+        function addTouchEvents(item) {
+            item.addEventListener('touchstart', handleTouchStart);
+            item.addEventListener('touchmove', handleTouchMove);
+            item.addEventListener('touchend', handleTouchEnd);
+        }
+        
+        // 触摸开始
+        function handleTouchStart(event) {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+            currentSlideItem = event.currentTarget;
+        }
+        
+        // 触摸移动
+        function handleTouchMove(event) {
+            if (!currentSlideItem) return;
+            
+            const touchX = event.touches[0].clientX;
+            const touchY = event.touches[0].clientY;
+            const deltaX = touchStartX - touchX;
+            const deltaY = Math.abs(touchStartY - touchY);
+            
+            // 只处理水平滑动，且垂直滑动不能太大
+            if (Math.abs(deltaX) > 10 && deltaY < 50) {
+                event.preventDefault();
+                
+                // 限制滑动距离
+                const slideDistance = Math.min(Math.max(deltaX, 0), 160);
+                currentSlideItem.querySelector('.history-item-content').style.transform = `translateX(-${slideDistance}px)`;
+                
+                // 同时移动操作按钮，实现堆叠效果
+                const actions = currentSlideItem.querySelector('.history-item-actions');
+                const actionSlideDistance = Math.max(0, slideDistance - 160);
+                actions.style.transform = `translateX(${actionSlideDistance}px)`;
+            }
+        }
+        
+        // 触摸结束
+        function handleTouchEnd(event) {
+            if (!currentSlideItem) return;
+            
+            const touchX = event.changedTouches[0].clientX;
+            const deltaX = touchStartX - touchX;
+            
+            // 如果滑动距离足够，显示操作按钮
+            if (deltaX > 80) {
+                currentSlideItem.classList.add('sliding');
+                currentSlideItem.querySelector('.history-item-content').style.transform = 'translateX(-160px)';
+                currentSlideItem.querySelector('.history-item-actions').style.transform = 'translateX(0)';
+            } else {
+                currentSlideItem.classList.remove('sliding');
+                currentSlideItem.querySelector('.history-item-content').style.transform = 'translateX(0)';
+                currentSlideItem.querySelector('.history-item-actions').style.transform = 'translateX(100%)';
+            }
+            
+            currentSlideItem = null;
+        }
         
         // 显示右键菜单
         function showContextMenu(event, chatId) {
@@ -299,44 +464,49 @@
         });
         
         // 重命名对话
-        function renameChat() {
-            if (currentChatId) {
-                const newName = prompt('请输入新的对话名称：');
-                if (newName && newName.trim()) {
-                    // 实际应用中这里会更新数据库
-                    const element = document.querySelector(`[oncontextmenu*="${currentChatId}"]`);
-                    if (element) {
-                        element.querySelector('.history-title').textContent = newName.trim();
-                    }
+        function renameChat(chatId) {
+            const newName = prompt('请输入新的对话名称：');
+            if (newName && newName.trim()) {
+                // 实际应用中这里会更新数据库
+                const element = document.querySelector(`[data-id="${chatId}"]`);
+                if (element) {
+                    element.querySelector('.history-title').textContent = newName.trim();
+                    // 重置滑动状态
+                    element.classList.remove('sliding');
+                    element.querySelector('.history-item-content').style.transform = 'translateX(0)';
+                    element.querySelector('.history-item-actions').style.transform = 'translateX(100%)';
                 }
             }
-            document.getElementById('contextMenu').style.display = 'none';
         }
         
         // 删除对话
-        function deleteChat() {
-            if (currentChatId) {
-                if (confirm('确定要删除这个对话吗？')) {
-                    // 实际应用中这里会从数据库删除
-                    const element = document.querySelector(`[oncontextmenu*="${currentChatId}"]`);
-                    if (element) {
-                        element.remove();
-                        // 重新获取历史记录项
-                        allHistoryItems = Array.from(document.querySelectorAll('.history-item'));
-                        
-                        // 如果没有记录了，显示空状态
-                        if (allHistoryItems.length === 0) {
-                            document.getElementById('historyList').innerHTML = '';
-                            document.getElementById('emptyState').style.display = 'block';
-                        }
+        function deleteChat(chatId) {
+            if (confirm('确定要删除这个对话吗？')) {
+                // 实际应用中这里会从数据库删除
+                const element = document.querySelector(`[data-id="${chatId}"]`);
+                if (element) {
+                    element.remove();
+                    // 重新获取历史记录项
+                    allHistoryItems = Array.from(document.querySelectorAll('.history-item'));
+                    
+                    // 如果没有记录了，显示空状态
+                    if (allHistoryItems.length === 0) {
+                        document.getElementById('historyList').innerHTML = '';
+                        document.getElementById('emptyState').style.display = 'block';
                     }
                 }
             }
-            document.getElementById('contextMenu').style.display = 'none';
         }
         
         // 打开对话
         function openChat(chatId) {
+            // 重置所有滑动状态
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.classList.remove('sliding');
+                item.querySelector('.history-item-content').style.transform = 'translateX(0)';
+                item.querySelector('.history-item-actions').style.transform = 'translateX(100%)';
+            });
+            
             // 实际应用中这里会加载对应的对话内容
             alert('打开对话: ' + chatId);
         }
@@ -405,10 +575,10 @@
             return text.replace(regex, '<span class="highlight">$1</span>');
         }
         
-        // 前往设置页面
+        // 跳转到设置页面
         function goToSettings() {
-            // 实际应用中这里会导航到设置页面
-            alert('前往设置页面');
+            // 实际应用中这里会跳转到设置页面
+            alert('跳转到设置页面');
         }
     </script>
 </body>
