@@ -294,9 +294,8 @@
                     </div>
                     <div class="settings-item-right">
                         <div class="appearance-controls">
-                            <div class="appearance-option" data-theme="light" onclick="setTheme('light')">白天</div>
+                            <div class="appearance-option active" data-theme="light" onclick="setTheme('light')">白天</div>
                             <div class="appearance-option" data-theme="dark" onclick="setTheme('dark')">夜晚</div>
-                            <div class="appearance-option active" data-theme="auto" onclick="setTheme('auto')">跟随系统</div>
                         </div>
                     </div>
                 </div>
@@ -385,7 +384,7 @@
     </div>
     
     <script>
-        let currentTheme = 'auto';
+        let currentTheme = 'light';
         let selectedLanguage = 'zh-CN';
         
         // 返回上一页
