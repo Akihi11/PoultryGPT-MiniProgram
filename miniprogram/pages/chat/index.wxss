@@ -158,7 +158,7 @@ page {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 16rpx;
+  gap: 8rpx;
   min-width: 0;
 }
 
@@ -167,6 +167,56 @@ page {
   width: 80%;
   max-width: 80%;
   flex-shrink: 0;
+}
+
+/* 任务编排模块样式 */
+.task-card {
+  background: white;
+  border: none;
+  border-radius: 8rpx;
+  padding: 8rpx 12rpx;
+  margin-bottom: 4rpx;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.1);
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rpx 0;
+  cursor: pointer;
+  min-height: 32rpx;
+}
+
+.task-title {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #495057;
+}
+
+.expand-icon {
+  font-size: 18rpx;
+  color: #6c757d;
+  transition: transform 0.2s;
+}
+
+.task-steps {
+  margin-top: 6rpx;
+  padding-top: 6rpx;
+}
+
+.task-step {
+  display: flex;
+  align-items: center;
+  padding: 2rpx 0;
+  font-size: 20rpx;
+  color: #6c757d;
+}
+
+.step-check {
+  margin-right: 6rpx;
+  color: #28a745;
+  font-size: 18rpx;
 }
 
 .message-content {
@@ -229,6 +279,27 @@ page {
   border: 1rpx solid var(--td-border-color);
 }
 
+/* 去掉TDesign输入框的下划线 */
+.message-input::after,
+.message-input::before {
+  display: none !important;
+}
+
+.message-input .t-input::after,
+.message-input .t-input::before {
+  display: none !important;
+  border: none !important;
+}
+
+.message-input .t-input__control {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+.message-input .t-class-border::after {
+  display: none !important;
+}
+
 .input-actions {
   display: flex;
   align-items: center;
@@ -243,6 +314,155 @@ page {
 
 .send-button {
   background: linear-gradient(135deg, #0052d9 0%, #266fe8 100%) !important;
+}
+
+/* 操作选择器样式 */
+.action-options-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.action-options-content {
+  background: white;
+  border-radius: 24rpx 24rpx 0 0;
+  width: 100%;
+  max-height: 60vh;
+  overflow: hidden;
+}
+
+.action-options-list {
+  padding: 32rpx 0;
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+}
+
+.action-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 32rpx 24rpx;
+  margin: 0 16rpx;
+  border-radius: 16rpx;
+  transition: background-color 0.2s;
+  min-width: 120rpx;
+}
+
+.action-option-item:active {
+  background: #f9fafb;
+}
+
+.action-option-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 12rpx;
+  position: relative;
+}
+
+/* 文件图标 */
+.icon-file {
+  background: #6c757d;
+  border-radius: 4rpx;
+  position: relative;
+}
+
+.icon-file::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12rpx;
+  height: 12rpx;
+  background: white;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.icon-file::after {
+  content: "";
+  position: absolute;
+  top: 16rpx;
+  left: 8rpx;
+  right: 8rpx;
+  height: 2rpx;
+  background: white;
+  box-shadow: 0 6rpx 0 white, 0 12rpx 0 white;
+}
+
+/* 照片图标 */
+.icon-photo {
+  background: #6c757d;
+  border-radius: 4rpx;
+  position: relative;
+}
+
+.icon-photo::before {
+  content: "";
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  width: 8rpx;
+  height: 8rpx;
+  background: white;
+  border-radius: 50%;
+}
+
+.icon-photo::after {
+  content: "";
+  position: absolute;
+  bottom: 8rpx;
+  left: 6rpx;
+  right: 6rpx;
+  height: 12rpx;
+  background: white;
+  border-radius: 2rpx 2rpx 0 0;
+  clip-path: polygon(0 100%, 30% 0, 70% 0, 100% 100%);
+}
+
+/* 拍照图标 */
+.icon-camera {
+  background: #6c757d;
+  border-radius: 6rpx;
+  position: relative;
+}
+
+.icon-camera::before {
+  content: "";
+  position: absolute;
+  top: 6rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 4rpx;
+  background: #6c757d;
+  border-radius: 2rpx 2rpx 0 0;
+}
+
+.icon-camera::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20rpx;
+  height: 20rpx;
+  background: white;
+  border-radius: 50%;
+  border: 3rpx solid #6c757d;
+  box-sizing: border-box;
+}
+
+.action-option-label {
+  font-size: 28rpx;
+  color: #1a1a1a;
+  text-align: center;
 }
 
 /* 侧边栏样式 */
@@ -361,6 +581,7 @@ page {
   width: 100%;
   padding: 20rpx 16rpx;
   border-radius: 12rpx;
+  border: 2rpx solid #e9ecef;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-sizing: border-box;
@@ -596,4 +817,27 @@ page.dark .model-option {
 
 page.dark .model-option.selected {
   background: #1e3a8a !important;
+}
+
+/* 深色主题下的侧边栏历史记录 */
+page.dark .sidebar-content {
+  background: #2d2d2d !important;
+}
+
+page.dark .sidebar-history-item {
+  background: #1a1a1a !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+page.dark .sidebar-item-title {
+  color: #ffffff !important;
+}
+
+page.dark .sidebar-item-preview {
+  color: #a3a3a3 !important;
+}
+
+page.dark .sidebar-item-time {
+  color: #6b7280 !important;
 }

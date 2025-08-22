@@ -2,11 +2,19 @@
 <view class="container">
   <!-- 顶部标题栏 -->
   <view class="header gradient-bg">
-    <view class="header-content">
-      <view class="back-button" bindtap="goBack">←</view>
-      <text class="header-title">设置</text>
+  <view class="header-content">
+    <view class="back-button" bindtap="goBack">
+      <t-icon 
+        name="chevron-right" 
+        size="36rpx" 
+        color="#ffffff" 
+        style="transform: rotate(180deg);"
+      />
     </view>
+    <text class="header-title">设置</text>
   </view>
+  </view>
+  
   
   <!-- 设置内容 -->
   <scroll-view class="settings-content" scroll-y>
@@ -136,7 +144,7 @@
     
     <view class="about-content">
       <text class="about-description">一个专业的家禽养殖AI助手</text>
-      <text class="about-copyright">© 2024 PoultryGPT Team</text>
+      <text class="about-copyright">© 2025 PoultryGPT Team</text>
       
       <view class="feature-list">
         <view class="feature-item">✨ 智能对话交互</view>

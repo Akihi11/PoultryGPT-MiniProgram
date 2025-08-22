@@ -129,13 +129,22 @@
 </view>
 
 <!-- 操作选择器 -->
-<t-action-sheet
-  visible="{{showActionOptions}}"
-  items="{{actionOptions}}"
-  bind:selected="onActionSelect"
-  bind:cancel="hideActionSheet"
-  description="添加内容"
-/>
+<view wx:if="{{showActionOptions}}" class="action-options-mask" bindtap="hideActionSheet">
+  <view class="action-options-content" catchtap="preventClose">
+    <view class="action-options-list">
+      <view
+        wx:for="{{actionOptions}}"
+        wx:key="value"
+        class="action-option-item"
+        bindtap="onActionSelect"
+        data-value="{{item.value}}"
+      >
+        <view class="action-option-icon icon-{{item.icon}}"></view>
+        <text class="action-option-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+</view>
 
 <!-- 侧边栏历史记录 -->
 <view wx:if="{{showSidebar}}" class="sidebar-mask" bindtap="hideSidebar">
@@ -143,6 +152,8 @@
     <!-- 侧边栏头部 - 与设置页面高度一致 -->
     <view class="sidebar-header gradient-bg">
       <view class="sidebar-header-content">
+        <!-- 设置按钮 -->
+        <view class="sidebar-settings-btn" bindtap="navigateToSettings">⚙️</view>
         <!-- 搜索框 -->
         <input 
           class="sidebar-search-input"
@@ -152,8 +163,6 @@
           confirm-type="search"
           bindconfirm="onSearchConfirm"
         />
-        <!-- 设置按钮 -->
-        <view class="sidebar-settings-btn" bindtap="navigateToSettings">⚙️</view>
       </view>
     </view>
     

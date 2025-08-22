@@ -50,9 +50,9 @@ Page({
     // 操作选择器
     showActionOptions: false,
     actionOptions: [
-      { label: '文件', value: 'file', icon: '📁' },
-      { label: '照片', value: 'photo', icon: '🖼️' },
-      { label: '拍照', value: 'camera', icon: '📷' }
+      { label: '文件', value: 'file', icon: 'file' },
+      { label: '照片', value: 'photo', icon: 'photo' },
+      { label: '拍照', value: 'camera', icon: 'camera' }
     ],
     
     // 侧边栏
@@ -526,7 +526,7 @@ Page({
 
   // 选择操作
   onActionSelect(e: any) {
-    const { value } = e.detail;
+    const { value } = e.currentTarget.dataset;
     this.setData({
       showActionOptions: false
     });

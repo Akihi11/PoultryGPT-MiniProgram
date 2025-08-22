@@ -253,13 +253,29 @@
 
 /* TDesign 组件样式覆盖 */
 .t-cell-group {
-  margin: 0 32rpx 32rpx;
+  margin: 0 32rpx 16rpx;
   border-radius: var(--td-radius-medium);
   overflow: hidden;
 }
 
 .t-cell {
   background: white;
+}
+
+/* 修改分组标题背景和间距 */
+.t-cell-group__title {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding-bottom: 8rpx !important;
+  margin-bottom: 8rpx !important;
+}
+
+/* 通过更具体的选择器覆盖分组标题样式 */
+.settings-group .t-cell-group__title {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding-bottom: 8rpx !important;
+  margin-bottom: 8rpx !important;
 }
 
 /* 深色主题适配 */
@@ -278,6 +294,21 @@ page.dark .t-cell {
 
 page.dark .t-cell-group {
   background: #2d2d2d !important;
+}
+
+/* 深色主题下的分组标题背景和间距 */
+page.dark .t-cell-group__title {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding-bottom: 8rpx !important;
+  margin-bottom: 8rpx !important;
+}
+
+page.dark .settings-group .t-cell-group__title {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding-bottom: 8rpx !important;
+  margin-bottom: 8rpx !important;
 }
 
 page.dark .language-modal,
