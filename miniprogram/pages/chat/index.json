@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "PoultryGPT",
   "navigationStyle": "custom",
+  "style": "v2",
+  "componentFramework": "glass-easel",
   "usingComponents": {
     "t-button": "tdesign-miniprogram/button/button",
     "t-input": "tdesign-miniprogram/input/input",

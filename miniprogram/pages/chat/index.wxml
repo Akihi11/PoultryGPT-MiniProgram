@@ -1,5 +1,5 @@
 <!--pages/chat/index.wxml-->
-<view class="container">
+<view class="container" style="{{containerStyle}}">
   <!-- 顶部导航栏 -->
   <view class="header gradient-bg">
     <view class="header-left">

@@ -89,6 +89,15 @@
   color: var(--td-text-color-secondary);
 }
 
+.custom-icon {
+  font-size: 32rpx;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .logout-section {
   padding: 64rpx 32rpx 32rpx;
 }
@@ -133,8 +142,9 @@
 }
 
 .language-list {
-  max-height: 400rpx;
+  max-height: 500rpx;
   overflow-y: auto;
+  padding-bottom: 16rpx;
 }
 
 .language-option {
@@ -169,23 +179,13 @@
   font-weight: 600;
 }
 
-.modal-buttons {
-  display: flex;
-  gap: 16rpx;
-  padding: 32rpx;
-  border-top: 1rpx solid var(--td-border-color);
-}
-
-.modal-buttons .t-button {
-  flex: 1;
-}
-
 /* 关于页面弹窗 */
 .about-modal {
   background: white;
   border-radius: 24rpx;
-  margin: 40rpx;
-  max-width: 600rpx;
+  width: 80vw;
+  max-width: 80vw;
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -234,7 +234,7 @@
 }
 
 .feature-list {
-  text-align: left;
+  text-align: center;
   margin-top: 32rpx;
 }
 
@@ -243,11 +243,12 @@
   font-size: 28rpx;
   color: var(--td-text-color-primary);
   margin-bottom: 16rpx;
-  padding-left: 8rpx;
+  text-align: center;
 }
 
 .about-footer {
   padding: 0 32rpx 32rpx;
+  text-align: center;
 }
 
 /* TDesign 组件样式覆盖 */

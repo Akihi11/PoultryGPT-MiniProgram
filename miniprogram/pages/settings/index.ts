@@ -113,12 +113,11 @@ Page({
     
     if (theme === 'dark') {
       // 添加深色主题类
-      wx.nextTick(() => {
-        const query = wx.createSelectorQuery();
-        query.select('page').exec();
-      });
+      console.log('应用深色主题');
+      // 可以通过设置全局变量或CSS变量来应用主题
     } else {
-      // 移除深色主题类
+      // 应用浅色主题
+      console.log('应用浅色主题');
     }
   },
 
@@ -133,8 +132,7 @@ Page({
   // 打开语言设置
   openLanguageSettings() {
     this.setData({
-      showLanguageModal: true,
-      selectedLanguage: this.data.currentLanguage
+      showLanguageModal: true
     });
   },
 
@@ -155,28 +153,26 @@ Page({
   // 选择语言
   selectLanguage(e: any) {
     const { value, label } = e.currentTarget.dataset;
+    
+    // 直接应用语言设置
     this.setData({
-      selectedLanguage: value
+      currentLanguage: value,
+      currentLanguageLabel: label,
+      selectedLanguage: value,
+      showLanguageModal: false  // 立即关闭弹窗
     });
+    
+    // 保存设置
+    this.saveUserSettings();
+    
+    // 应用语言设置
+    this.applyLanguage(value);
   },
 
-  // 确认语言更改
+  // 确认语言更改（保留函数但不再使用）
   confirmLanguageChange() {
-    const { selectedLanguage, languageOptions } = this.data;
-    const languageOption = languageOptions.find(opt => opt.value === selectedLanguage);
-    
-    if (languageOption) {
-      this.setData({
-        currentLanguage: selectedLanguage,
-        currentLanguageLabel: languageOption.label,
-        showLanguageModal: false
-      });
-      
-      this.saveUserSettings();
-      
-      // 这里可以触发应用语言国际化
-      this.applyLanguage(selectedLanguage);
-    }
+    // 这个函数现在不再需要，但保留以防其他地方有引用
+    console.log('confirmLanguageChange 已弃用，语言选择现在是直接生效的');
   },
 
   // 应用语言设置

@@ -3,7 +3,7 @@
   <!-- 顶部标题栏 -->
   <view class="header gradient-bg">
     <view class="header-content">
-      <view class="back-button" bindtap="goBack">🡸</view>
+      <view class="back-button" bindtap="goBack">←</view>
       <text class="header-title">设置</text>
     </view>
   </view>
@@ -16,14 +16,16 @@
         title="账号管理"
         arrow
         bind:click="openAccountManagement"
-        left-icon="user"
-      />
+      >
+        <view slot="left-icon" class="custom-icon">👤</view>
+      </t-cell>
     </t-cell-group>
     
     <!-- 第二组：应用设置 -->
     <t-cell-group title="应用设置" class="settings-group">
       <!-- 外观设置 -->
-      <t-cell title="外观" left-icon="moon">
+      <t-cell title="外观">
+        <view slot="left-icon" class="custom-icon">🎨</view>
         <view slot="note" class="appearance-controls">
           <radio-group class="radio-group" bindchange="onThemeChange">
             <label class="radio-option">
@@ -44,8 +46,9 @@
         note="{{currentLanguageLabel}}"
         arrow
         bind:click="openLanguageSettings"
-        left-icon="earth"
-      />
+      >
+        <view slot="left-icon" class="custom-icon">🌐</view>
+      </t-cell>
     </t-cell-group>
     
     <!-- 第三组：关于和帮助 -->
@@ -54,15 +57,15 @@
         title="关于 PoultryGPT"
         arrow
         bind:click="openAbout"
-        left-icon="info-circle"
-      />
+      >
+        <view slot="left-icon" class="custom-icon">ℹ️</view>
+      </t-cell>
       <t-cell
         title="GitHub"
         bind:click="openGitHub"
         left-icon="logo-github"
-      >
-        <view slot="note" class="external-link-icon">↗</view>
-      </t-cell>
+        arrow
+      />
     </t-cell-group>
     
     <!-- 退出登录按钮 -->
@@ -95,19 +98,14 @@
       <view
         wx:for="{{languageOptions}}"
         wx:key="value"
-        class="language-option {{selectedLanguage === item.value ? 'selected' : ''}}"
+        class="language-option {{currentLanguage === item.value ? 'selected' : ''}}"
         bindtap="selectLanguage"
         data-value="{{item.value}}"
         data-label="{{item.label}}"
       >
         <text class="language-label">{{item.label}}</text>
-        <view wx:if="{{selectedLanguage === item.value}}" class="check-icon">✓</view>
+        <view wx:if="{{currentLanguage === item.value}}" class="check-icon">✓</view>
       </view>
-    </view>
-    
-    <view class="modal-buttons">
-      <t-button theme="light" size="large" bind:tap="hideLanguageModal">取消</t-button>
-      <t-button theme="primary" size="large" bind:tap="confirmLanguageChange">确定</t-button>
     </view>
   </view>
 </t-popup>

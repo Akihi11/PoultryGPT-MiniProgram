@@ -66,6 +66,10 @@ Page({
     touchStartX: 0,
     touchStartY: 0,
     currentSwipeId: '',
+
+    // 键盘适配
+    keyboardHeight: '0px',
+    containerStyle: 'height: 100vh',
     
     // 历史记录
     historyList: [
@@ -137,6 +141,9 @@ Page({
     
     // 初始化示例对话
     this.initSampleChat();
+    
+    // 监听键盘高度变化
+    this.setupKeyboardListener();
   },
 
   // 获取系统信息
@@ -144,6 +151,37 @@ Page({
     const systemInfo = wx.getSystemInfoSync();
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight
+    });
+  },
+
+  // 设置键盘监听
+  setupKeyboardListener() {
+    // 监听键盘高度变化
+    wx.onKeyboardHeightChange((res) => {
+      const keyboardHeight = res.height;
+      if (keyboardHeight > 0) {
+        // 键盘弹起
+        this.setData({
+          keyboardHeight: keyboardHeight + 'px'
+        });
+        // 调整页面样式
+        const query = wx.createSelectorQuery();
+        query.select('.container').boundingClientRect();
+        query.exec((res) => {
+          if (res[0]) {
+            const containerHeight = res[0].height;
+            this.setData({
+              containerStyle: `height: ${containerHeight - keyboardHeight}px`
+            });
+          }
+        });
+      } else {
+        // 键盘收起
+        this.setData({
+          keyboardHeight: '0px',
+          containerStyle: 'height: 100vh'
+        });
+      }
     });
   },
 
@@ -208,7 +246,7 @@ Page({
           { name: '内容生成', status: 'completed' },
           { name: '格式化输出', status: 'completed' }
         ],
-        workflowExpanded: true,
+        workflowExpanded: false,
         timestamp: Date.now()
       }
     ];
@@ -295,7 +333,7 @@ Page({
       type: 'ai',
       content,
       workflow,
-      workflowExpanded: true,
+      workflowExpanded: false,
       timestamp: Date.now()
     };
 
@@ -414,8 +452,20 @@ Page({
   scrollToBottom() {
     const lastIndex = this.data.messages.length - 1;
     if (lastIndex >= 0) {
-      this.setData({
-        scrollIntoView: `msg-${this.data.messages[lastIndex].id}`
+      const targetId = `msg-${this.data.messages[lastIndex].id}`;
+      
+      // 使用 nextTick 确保 DOM 更新完成后再滚动
+      wx.nextTick(() => {
+        this.setData({
+          scrollIntoView: targetId
+        });
+        
+        // 再次确保滚动生效
+        setTimeout(() => {
+          this.setData({
+            scrollIntoView: targetId
+          });
+        }, 100);
       });
     }
   },
@@ -550,10 +600,7 @@ Page({
     });
   },
 
-  // 防止点击侧边栏内容关闭
-  preventClose() {
-    // 空方法，用于阻止事件冒泡
-  },
+
 
   // 搜索输入处理
   onSearchInput(e: any) {
@@ -603,17 +650,38 @@ Page({
     const touch = e.touches[0];
     const deltaX = touch.clientX - this.data.touchStartX;
     const deltaY = touch.clientY - this.data.touchStartY;
+    const itemId = e.currentTarget.dataset.id;
     
-    // 判断是否是左滑手势
-    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < -50) {
-      const itemId = e.currentTarget.dataset.id;
-      this.openSwipeActions(itemId);
+    // 确保是水平滑动且垂直位移不大
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
+      // 左滑打开操作按钮
+      if (deltaX < -50 && this.data.currentSwipeId !== itemId) {
+        this.openSwipeActions(itemId);
+      }
+      // 右滑关闭操作按钮
+      else if (deltaX > 50 && this.data.currentSwipeId === itemId) {
+        this.closeAllSwipeActions();
+      }
     }
   },
 
   // 触摸结束
   onTouchEnd(e: any) {
-    // 触摸结束处理
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - this.data.touchStartX;
+    const deltaY = touch.clientY - this.data.touchStartY;
+    const itemId = e.currentTarget.dataset.id;
+    
+    // 如果是小幅度的水平滑动，根据方向决定是否切换状态
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+      if (deltaX < 0 && this.data.currentSwipeId !== itemId) {
+        // 左滑，如果当前项目未展开，则展开
+        this.openSwipeActions(itemId);
+      } else if (deltaX > 0 && this.data.currentSwipeId === itemId) {
+        // 右滑，如果当前项目已展开，则关闭
+        this.closeAllSwipeActions();
+      }
+    }
   },
 
   // 打开滑动操作
@@ -729,9 +797,12 @@ Page({
 
   // 点击外部关闭滑动
   closeSwipeOnTapOutside(e: any) {
-    if (this.data.currentSwipeId) {
+    const itemId = e.currentTarget.dataset.id;
+    // 如果点击的不是当前已展开滑动的项目，则关闭所有滑动
+    if (this.data.currentSwipeId && this.data.currentSwipeId !== itemId) {
       this.closeAllSwipeActions();
     }
+    // 如果点击的是当前已展开的项目，不做处理（让其他事件处理）
   },
 
   // 侧边栏显示状态变化
@@ -746,6 +817,15 @@ Page({
   // 打开历史记录
   openHistory(e: any) {
     const { id } = e.currentTarget.dataset;
+    
+    // 如果当前有展开的滑动操作，先关闭
+    if (this.data.currentSwipeId) {
+      this.closeAllSwipeActions();
+      return; // 第一次点击只关闭滑动，不打开历史记录
+    }
+    
+    // 这里可以加载对应的历史记录消息
+    console.log('打开历史记录:', id);
     
     this.setData({
       showSidebar: false
@@ -796,6 +876,12 @@ Page({
     wx.navigateTo({
       url: '/pages/settings/index'
     });
+  },
+
+  // 页面卸载时清理
+  onUnload() {
+    // 移除键盘监听（注意：实际上小程序会自动清理）
+    console.log('页面卸载，清理资源');
   },
 
   // 历史记录页面已删除，现在只使用侧边栏显示历史记录
