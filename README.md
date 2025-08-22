@@ -218,4 +218,4 @@ docs/                        # 文档目录
 
 ---
 
-**PoultryGPT Team** © 2024
+**PoultryGPT Team** © 2025
