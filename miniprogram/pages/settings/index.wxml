@@ -1,0 +1,153 @@
+<!--pages/settings/index.wxml-->
+<view class="container">
+  <!-- 顶部标题栏 -->
+  <view class="header gradient-bg">
+    <view class="header-content">
+      <view class="back-button" bindtap="goBack">🡸</view>
+      <text class="header-title">设置</text>
+    </view>
+  </view>
+  
+  <!-- 设置内容 -->
+  <scroll-view class="settings-content" scroll-y>
+    <!-- 第一组：账号管理 -->
+    <t-cell-group title="账号管理" class="settings-group">
+      <t-cell
+        title="账号管理"
+        arrow
+        bind:click="openAccountManagement"
+        left-icon="user"
+      />
+    </t-cell-group>
+    
+    <!-- 第二组：应用设置 -->
+    <t-cell-group title="应用设置" class="settings-group">
+      <!-- 外观设置 -->
+      <t-cell title="外观" left-icon="moon">
+        <view slot="note" class="appearance-controls">
+          <t-radio-group
+            value="{{currentTheme}}"
+            bind:change="onThemeChange"
+            direction="horizontal"
+          >
+            <t-radio label="白天" value="light" />
+            <t-radio label="夜晚" value="dark" />
+          </t-radio-group>
+        </view>
+      </t-cell>
+      
+      <!-- 语言设置 -->
+      <t-cell
+        title="语言"
+        note="{{currentLanguageLabel}}"
+        arrow
+        bind:click="openLanguageSettings"
+        left-icon="earth"
+      />
+    </t-cell-group>
+    
+    <!-- 第三组：关于和帮助 -->
+    <t-cell-group title="关于和帮助" class="settings-group">
+      <t-cell
+        title="关于 PoultryGPT"
+        arrow
+        bind:click="openAbout"
+        left-icon="info-circle"
+      />
+      <t-cell
+        title="GitHub"
+        bind:click="openGitHub"
+        left-icon="logo-github"
+      >
+        <view slot="note" class="external-link-icon">↗</view>
+      </t-cell>
+    </t-cell-group>
+    
+    <!-- 退出登录按钮 -->
+    <view class="logout-section">
+      <t-button
+        theme="danger"
+        size="large"
+        block
+        bind:tap="showLogoutConfirm"
+      >
+        退出登录
+      </t-button>
+    </view>
+  </scroll-view>
+</view>
+
+<!-- 语言选择弹窗 -->
+<t-popup
+  visible="{{showLanguageModal}}"
+  placement="bottom"
+  bind:visible-change="onLanguageModalChange"
+>
+  <view class="language-modal">
+    <view class="modal-header">
+      <text class="modal-title">选择语言</text>
+      <view class="modal-close" bindtap="hideLanguageModal">×</view>
+    </view>
+    
+    <view class="language-list">
+      <view
+        wx:for="{{languageOptions}}"
+        wx:key="value"
+        class="language-option {{selectedLanguage === item.value ? 'selected' : ''}}"
+        bindtap="selectLanguage"
+        data-value="{{item.value}}"
+        data-label="{{item.label}}"
+      >
+        <text class="language-label">{{item.label}}</text>
+        <view wx:if="{{selectedLanguage === item.value}}" class="check-icon">✓</view>
+      </view>
+    </view>
+    
+    <view class="modal-buttons">
+      <t-button theme="light" size="large" bind:tap="hideLanguageModal">取消</t-button>
+      <t-button theme="primary" size="large" bind:tap="confirmLanguageChange">确定</t-button>
+    </view>
+  </view>
+</t-popup>
+
+<!-- 退出登录确认对话框 -->
+<t-dialog
+  visible="{{showLogoutDialog}}"
+  title="退出登录"
+  content="确定要退出登录吗？退出后需要重新登录才能使用。"
+  confirm-btn="退出"
+  cancel-btn="取消"
+  bind:confirm="confirmLogout"
+  bind:cancel="hideLogoutConfirm"
+/>
+
+<!-- 关于页面弹窗 -->
+<t-popup
+  visible="{{showAboutModal}}"
+  placement="center"
+  bind:visible-change="onAboutModalChange"
+>
+  <view class="about-modal">
+    <view class="about-header">
+      <view class="app-icon">🐤</view>
+      <text class="app-name">PoultryGPT</text>
+      <text class="app-version">v1.0.0</text>
+    </view>
+    
+    <view class="about-content">
+      <text class="about-description">一个专业的家禽养殖AI助手</text>
+      <text class="about-copyright">© 2024 PoultryGPT Team</text>
+      
+      <view class="feature-list">
+        <view class="feature-item">✨ 智能对话交互</view>
+        <view class="feature-item">🔄 任务编排可视化</view>
+        <view class="feature-item">📚 专业知识库</view>
+        <view class="feature-item">📱 移动端优化</view>
+      </view>
+    </view>
+    
+    <view class="about-footer">
+      <t-button theme="primary" size="large" bind:tap="hideAboutModal">知道了</t-button>
+    </view>
+  </view>
+</t-popup>

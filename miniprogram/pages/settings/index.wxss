@@ -1,0 +1,277 @@
+/* pages/settings/index.wxss */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  color: white;
+  height: calc(100vh / 9);
+  min-height: calc(var(--status-bar-height) + 80rpx);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 24rpx 16rpx;
+  padding-top: var(--status-bar-height);
+  box-shadow: 0 2rpx 12rpx rgba(0, 82, 217, 0.15);
+  backdrop-filter: blur(10rpx);
+}
+
+.header-content {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.back-button:active {
+  opacity: 0.6;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.settings-content {
+  padding-top: calc(100vh / 9 + 32rpx);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 160rpx);
+  background: var(--td-bg-color-page);
+}
+
+.settings-group {
+  margin-bottom: 32rpx;
+}
+
+.appearance-controls {
+  display: flex;
+  align-items: center;
+}
+
+.external-link-icon {
+  font-size: 24rpx;
+  color: var(--td-text-color-secondary);
+}
+
+.logout-section {
+  padding: 64rpx 32rpx 32rpx;
+}
+
+/* 语言选择弹窗 */
+.language-modal {
+  background: white;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid var(--td-border-color);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--td-text-color-primary);
+}
+
+.modal-close {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: var(--td-text-color-secondary);
+  transition: background-color 0.2s;
+}
+
+.modal-close:active {
+  background: #e5e7eb;
+}
+
+.language-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.language-option:last-child {
+  border-bottom: none;
+}
+
+.language-option:active {
+  background: #f9fafb;
+}
+
+.language-option.selected {
+  color: var(--td-brand-color);
+  background: #f0f7ff;
+}
+
+.language-label {
+  font-size: 32rpx;
+}
+
+.check-icon {
+  font-size: 32rpx;
+  color: var(--td-brand-color);
+  font-weight: 600;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 16rpx;
+  padding: 32rpx;
+  border-top: 1rpx solid var(--td-border-color);
+}
+
+.modal-buttons .t-button {
+  flex: 1;
+}
+
+/* 关于页面弹窗 */
+.about-modal {
+  background: white;
+  border-radius: 24rpx;
+  margin: 40rpx;
+  max-width: 600rpx;
+  overflow: hidden;
+}
+
+.about-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx 32rpx;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+}
+
+.app-icon {
+  font-size: 96rpx;
+  margin-bottom: 16rpx;
+}
+
+.app-name {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: var(--td-text-color-primary);
+  margin-bottom: 8rpx;
+}
+
+.app-version {
+  font-size: 28rpx;
+  color: var(--td-text-color-secondary);
+}
+
+.about-content {
+  padding: 32rpx;
+  text-align: center;
+}
+
+.about-description {
+  display: block;
+  font-size: 32rpx;
+  color: var(--td-text-color-primary);
+  margin-bottom: 16rpx;
+}
+
+.about-copyright {
+  display: block;
+  font-size: 28rpx;
+  color: var(--td-text-color-secondary);
+  margin-bottom: 32rpx;
+}
+
+.feature-list {
+  text-align: left;
+  margin-top: 32rpx;
+}
+
+.feature-item {
+  display: block;
+  font-size: 28rpx;
+  color: var(--td-text-color-primary);
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.about-footer {
+  padding: 0 32rpx 32rpx;
+}
+
+/* TDesign 组件样式覆盖 */
+.t-cell-group {
+  margin: 0 32rpx 32rpx;
+  border-radius: var(--td-radius-medium);
+  overflow: hidden;
+}
+
+.t-cell {
+  background: white;
+}
+
+.t-radio-group {
+  display: flex;
+  gap: 24rpx;
+}
+
+.t-radio {
+  font-size: 28rpx;
+}
+
+/* 深色主题适配 */
+page.dark {
+  --td-bg-color-page: #1a1a1a;
+  --td-text-color-primary: #ffffff;
+  --td-text-color-secondary: #a3a3a3;
+  --td-text-color-placeholder: #6b7280;
+  --td-border-color: #374151;
+}
+
+page.dark .t-cell {
+  background: #2d2d2d !important;
+  color: var(--td-text-color-primary) !important;
+}
+
+page.dark .t-cell-group {
+  background: #2d2d2d !important;
+}
+
+page.dark .language-modal,
+page.dark .about-modal {
+  background: #2d2d2d !important;
+}
+
+page.dark .about-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+}

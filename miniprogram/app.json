@@ -1,12 +1,14 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/logs/logs"
+    "pages/chat/index",
+    "pages/settings/index"
   ],
   "window": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "Weixin",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "PoultryGPT",
+    "navigationBarBackgroundColor": "#0052d9",
+    "navigationStyle": "default",
+    "backgroundColor": "#f8f9fa"
   },
   "componentFramework": "glass-easel",
   "lazyCodeLoading": "requiredComponents"
