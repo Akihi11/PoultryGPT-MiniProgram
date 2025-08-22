@@ -25,14 +25,16 @@
       <!-- 外观设置 -->
       <t-cell title="外观" left-icon="moon">
         <view slot="note" class="appearance-controls">
-          <t-radio-group
-            value="{{currentTheme}}"
-            bind:change="onThemeChange"
-            direction="horizontal"
-          >
-            <t-radio label="白天" value="light" />
-            <t-radio label="夜晚" value="dark" />
-          </t-radio-group>
+          <radio-group class="radio-group" bindchange="onThemeChange">
+            <label class="radio-option">
+              <radio value="light" checked="{{currentTheme === 'light'}}" />
+              <text class="radio-text">白天</text>
+            </label>
+            <label class="radio-option">
+              <radio value="dark" checked="{{currentTheme === 'dark'}}" />
+              <text class="radio-text">夜晚</text>
+            </label>
+          </radio-group>
         </view>
       </t-cell>
       

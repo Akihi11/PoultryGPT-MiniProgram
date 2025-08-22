@@ -4,7 +4,7 @@
   <view class="header gradient-bg">
     <view class="header-left">
       <view class="menu-icon" bindtap="toggleSidebar">☰</view>
-      <view class="new-chat-icon" bindtap="newChat">+</view>
+      <view class="new-chat-icon" bindtap="newChat">✛</view>
     </view>
     
     <view class="header-center" bindtap="showModelSelector">
@@ -106,13 +106,27 @@
 </view>
 
 <!-- 模型选择器 -->
-<t-action-sheet
-  visible="{{showModelSheet}}"
-  items="{{modelOptions}}"
-  bind:selected="onModelSelect"
-  bind:cancel="hideModelSelector"
-  description="选择AI模型"
-/>
+<view wx:if="{{showModelSheet}}" class="model-selector-mask" bindtap="hideModelSelector">
+  <view class="model-selector-content" catchtap="preventClose">
+    <view class="model-selector-header">
+      <text class="model-selector-title">选择AI模型</text>
+      <view class="model-selector-close" bindtap="hideModelSelector">×</view>
+    </view>
+    <view class="model-selector-list">
+      <view 
+        wx:for="{{modelOptions}}" 
+        wx:key="value"
+        class="model-option {{currentModel === item.value ? 'selected' : ''}}"
+        bindtap="selectModel"
+        data-value="{{item.value}}"
+        data-label="{{item.label}}"
+      >
+        <text class="model-option-label">{{item.label}}</text>
+        <view wx:if="{{currentModel === item.value}}" class="model-option-check">✓</view>
+      </view>
+    </view>
+  </view>
+</view>
 
 <!-- 操作选择器 -->
 <t-action-sheet
@@ -147,11 +161,30 @@
     <scroll-view scroll-y style="flex: 1; padding: 16rpx 0;">
       <!-- 历史记录项目 -->
       <view wx:for="{{searchValue ? filteredHistory : historyList}}" wx:key="id" 
-            class="sidebar-history-item"
-            bindtap="openHistory" data-id="{{item.id}}">
-        <view class="sidebar-item-title">{{item.title}}</view>
-        <view class="sidebar-item-preview">{{item.preview}}</view>
-        <view class="sidebar-item-time">{{item.time}}</view>
+            class="sidebar-history-wrapper {{item.swiped ? 'swiped' : ''}}"
+            bindtap="closeSwipeOnTapOutside" data-id="{{item.id}}">
+        <!-- 滑动操作背景 -->
+        <view class="swipe-actions">
+          <view class="action-btn rename-btn" bindtap="startRename" data-id="{{item.id}}">
+            <view class="action-text">重命名</view>
+          </view>
+          <view class="action-btn delete-btn" bindtap="confirmDelete" data-id="{{item.id}}">
+            <view class="action-text">删除</view>
+          </view>
+        </view>
+        
+        <!-- 主要内容 -->
+        <view class="sidebar-history-item {{item.swiped ? 'swiped' : ''}}"
+              bindtouchstart="onTouchStart"
+              bindtouchmove="onTouchMove" 
+              bindtouchend="onTouchEnd"
+              bindtap="openHistory"
+              data-id="{{item.id}}"
+              data-index="{{index}}">
+          <view class="sidebar-item-title">{{item.title}}</view>
+          <view class="sidebar-item-preview">{{item.preview}}</view>
+          <view class="sidebar-item-time">{{item.time}}</view>
+        </view>
       </view>
       
       <!-- 空状态 - 搜索无结果 -->

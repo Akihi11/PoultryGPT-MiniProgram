@@ -61,6 +61,27 @@
 .appearance-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 240rpx;
+}
+
+.appearance-controls .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.appearance-controls .radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+  color: var(--td-text-color-primary);
+}
+
+.appearance-controls .radio-text {
+  font-size: 28rpx;
+  color: var(--td-text-color-primary);
 }
 
 .external-link-icon {
@@ -240,15 +261,6 @@
   background: white;
 }
 
-.t-radio-group {
-  display: flex;
-  gap: 24rpx;
-}
-
-.t-radio {
-  font-size: 28rpx;
-}
-
 /* 深色主题适配 */
 page.dark {
   --td-bg-color-page: #1a1a1a;
@@ -274,4 +286,12 @@ page.dark .about-modal {
 
 page.dark .about-header {
   background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+}
+
+page.dark .appearance-controls .radio-option {
+  color: var(--td-text-color-primary) !important;
+}
+
+page.dark .appearance-controls .radio-text {
+  color: var(--td-text-color-primary) !important;
 }

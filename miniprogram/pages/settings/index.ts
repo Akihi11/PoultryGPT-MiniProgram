@@ -103,11 +103,6 @@ Page({
     
     this.applyTheme(theme);
     this.saveUserSettings();
-    
-    wx.showToast({
-      title: `已切换到${theme === 'light' ? '白天' : '夜晚'}模式`,
-      icon: 'success'
-    });
   },
 
   // 应用主题
@@ -178,11 +173,6 @@ Page({
       });
       
       this.saveUserSettings();
-      
-      wx.showToast({
-        title: `语言已切换为${languageOption.label}`,
-        icon: 'success'
-      });
       
       // 这里可以触发应用语言国际化
       this.applyLanguage(selectedLanguage);

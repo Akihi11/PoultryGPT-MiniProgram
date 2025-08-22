@@ -62,6 +62,11 @@ Page({
     searchValue: '',
     filteredHistory: [] as HistoryItem[],
     
+    // 滑动相关
+    touchStartX: 0,
+    touchStartY: 0,
+    currentSwipeId: '',
+    
     // 历史记录
     historyList: [
       {
@@ -429,18 +434,30 @@ Page({
     });
   },
 
-  // 选择模型
+  // 选择模型 (原生实现)
+  selectModel(e: any) {
+    const { value, label } = e.currentTarget.dataset;
+    console.log('选中的模型:', value || label);
+    this.setData({
+      currentModel: value || label,
+      showModelSheet: false
+    });
+  },
+
+  // 兼容旧的 TDesign 事件 (保留以防万一)
   onModelSelect(e: any) {
-    const { value } = e.detail;
+    console.log('TDesign 模型选择事件:', e.detail);
+    const value = e.detail.value || e.detail.label;
+    console.log('选中的模型:', value);
     this.setData({
       currentModel: value,
       showModelSheet: false
     });
-    
-    wx.showToast({
-      title: `已切换到 ${value}`,
-      icon: 'success'
-    });
+  },
+
+  // 防止点击穿透
+  preventClose() {
+    // 阻止事件冒泡
   },
 
   // 显示操作选择器
@@ -572,6 +589,151 @@ Page({
     });
   },
 
+  // 触摸开始
+  onTouchStart(e: any) {
+    const touch = e.touches[0];
+    this.setData({
+      touchStartX: touch.clientX,
+      touchStartY: touch.clientY
+    });
+  },
+
+  // 触摸移动
+  onTouchMove(e: any) {
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.data.touchStartX;
+    const deltaY = touch.clientY - this.data.touchStartY;
+    
+    // 判断是否是左滑手势
+    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < -50) {
+      const itemId = e.currentTarget.dataset.id;
+      this.openSwipeActions(itemId);
+    }
+  },
+
+  // 触摸结束
+  onTouchEnd(e: any) {
+    // 触摸结束处理
+  },
+
+  // 打开滑动操作
+  openSwipeActions(itemId: string) {
+    // 先关闭其他已打开的滑动
+    this.closeAllSwipeActions();
+    
+    // 打开当前项的滑动
+    const historyList = this.data.historyList.map(item => ({
+      ...item,
+      swiped: item.id === itemId
+    }));
+    
+    this.setData({
+      historyList,
+      currentSwipeId: itemId
+    });
+  },
+
+  // 关闭所有滑动操作
+  closeAllSwipeActions() {
+    const historyList = this.data.historyList.map(item => ({
+      ...item,
+      swiped: false
+    }));
+    
+    this.setData({
+      historyList,
+      currentSwipeId: ''
+    });
+  },
+
+  // 开始重命名
+  startRename(e: any) {
+    const itemId = e.currentTarget.dataset.id;
+    const item = this.data.historyList.find(item => item.id === itemId);
+    
+    if (item) {
+      wx.showModal({
+        title: '重命名对话',
+        content: '请输入新的对话名称',
+        editable: true,
+        placeholderText: item.title,
+        success: (res) => {
+          if (res.confirm && res.content) {
+            this.renameHistoryItem(itemId, res.content);
+          }
+          this.closeAllSwipeActions();
+        },
+        fail: () => {
+          this.closeAllSwipeActions();
+        }
+      });
+    }
+  },
+
+  // 重命名历史项目
+  renameHistoryItem(itemId: string, newTitle: string) {
+    const historyList = this.data.historyList.map(item => {
+      if (item.id === itemId) {
+        return { ...item, title: newTitle.trim() };
+      }
+      return item;
+    });
+    
+    this.setData({
+      historyList
+    });
+    
+    wx.showToast({
+      title: '重命名成功',
+      icon: 'success'
+    });
+  },
+
+  // 确认删除
+  confirmDelete(e: any) {
+    const itemId = e.currentTarget.dataset.id;
+    const item = this.data.historyList.find(item => item.id === itemId);
+    
+    if (item) {
+      wx.showModal({
+        title: '删除对话',
+        content: `确定要删除"${item.title}"吗？删除后无法恢复。`,
+        confirmText: '删除',
+        confirmColor: '#dc2626',
+        success: (res) => {
+          if (res.confirm) {
+            this.deleteHistoryItem(itemId);
+          }
+          this.closeAllSwipeActions();
+        },
+        fail: () => {
+          this.closeAllSwipeActions();
+        }
+      });
+    }
+  },
+
+  // 删除历史项目
+  deleteHistoryItem(itemId: string) {
+    const historyList = this.data.historyList.filter(item => item.id !== itemId);
+    
+    this.setData({
+      historyList
+    });
+    
+    wx.showToast({
+      title: '删除成功',
+      icon: 'success'
+    });
+  },
+
+  // 点击外部关闭滑动
+  closeSwipeOnTapOutside(e: any) {
+    if (this.data.currentSwipeId) {
+      this.closeAllSwipeActions();
+    }
+  },
+
   // 侧边栏显示状态变化
   onSidebarChange(e: any) {
     this.setData({
@@ -584,10 +746,6 @@ Page({
   // 打开历史记录
   openHistory(e: any) {
     const { id } = e.currentTarget.dataset;
-    wx.showToast({
-      title: `打开对话 ${id}`,
-      icon: 'success'
-    });
     
     this.setData({
       showSidebar: false
