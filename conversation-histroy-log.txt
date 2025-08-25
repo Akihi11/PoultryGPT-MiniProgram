@@ -1,0 +1,206 @@
+{"success":true,"data":{"conversations":[{"id":"b2cddeb8-8394-46d8-b554-d4fd16dd7694","name":"你是谁","inputs":{},"status":"normal","introduction":"","created_at":1756125129,"updated_at":1756125129},{"id":"d884c7b0-f8a8-42d9-bcf4-d84848176f0c","name":"你好","inputs":{},"status":"normal","introduction":"","created_at":1756125082,"updated_at":1756125098},{"id":"fd82d060-ec9d-4af9-a540-b3fdb7e473e2","name":"测试消息","inputs":{},"status":"normal","introduction":"","created_at":1756125030,"updated_at":1756125030},{"id":"d2b60b15-0565-45ff-869b-1e40d82783b0","name":"测试消息","inputs":{},"status":"normal","introduction":"","created_at":1756125027,"updated_at":1756125027},{"id":"e13543e9-f86d-43ec-8b4c-15b30c266b4b","name":"测试消息","inputs":{},"status":"normal","introduction":"","created_at":1756125024,"updated_at":1756125024},{"id":"b6587490-b5ac-40fc-afe6-9542b7cc4a00","name":"你好","inputs":{},"status":"normal","introduction":"","created_at":1756124921,"updated_at":1756124938},{"id":"de560ef7-6c7a-4982-a3c1-f73a55e4496c","name":"你好","inputs":{},"status":"normal","introduction":"","created_at":1756124624,"updated_at":1756124634},{"id":"f6463189-842c-47f9-81b9-1ddc417843ee","name":"你好","inputs":{},"status":"normal","introduction":"","created_at":1756124396,"updated_at":1756124456},{"id":"b1518ca1-0239-42a3-854a-49975267e83d","name":"新城疫是什么？","inputs":{},"status":"normal","introduction":"","created_at":1756124317,"updated_at":1756124317},{"id":"e89bf4fc-17c1-4cbd-9019-11cccca86be8","name":"你好","inputs":{},"status":"normal","introduction":"","created_at":1756124252,"updated_at":1756124282}],"hasMore":false,"limit":20}}
+
+日志
+START RequestId: 8c2fdc61-54b2-46a6-bb3e-397e993aa882
+
+Event RequestId: 8c2fdc61-54b2-46a6-bb3e-397e993aa882
+
+ 
+
+2025-08-25T12:32:11.720Z  conversation-history 云函数被调用，参数: {
+
+  "action": "getConversations",
+
+  "lastId": "",
+
+  "limit": 20,
+
+  "tcbContext": {},
+
+  "userInfo": {
+
+    "appId": "wx6738333b7cc0341a",
+
+    "openId": "oDybz4iebvNIEi8z_gHJPs0T7OnE"
+
+  }
+
+}
+
+ 
+
+2025-08-25T12:32:12.523Z  获取会话列表成功: {
+
+  limit: 20,
+
+  has_more: false,
+
+  data: [
+
+    {
+
+      id: 'b2cddeb8-8394-46d8-b554-d4fd16dd7694',
+
+      name: '你是谁',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756125129,
+
+      updated_at: 1756125129
+
+    },
+
+    {
+
+      id: 'd884c7b0-f8a8-42d9-bcf4-d84848176f0c',
+
+      name: '你好',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756125082,
+
+      updated_at: 1756125098
+
+    },
+
+    {
+
+      id: 'fd82d060-ec9d-4af9-a540-b3fdb7e473e2',
+
+      name: '测试消息',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756125030,
+
+      updated_at: 1756125030
+
+    },
+
+    {
+
+      id: 'd2b60b15-0565-45ff-869b-1e40d82783b0',
+
+      name: '测试消息',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756125027,
+
+      updated_at: 1756125027
+
+    },
+
+    {
+
+      id: 'e13543e9-f86d-43ec-8b4c-15b30c266b4b',
+
+      name: '测试消息',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756125024,
+
+      updated_at: 1756125024
+
+    },
+
+    {
+
+      id: 'b6587490-b5ac-40fc-afe6-9542b7cc4a00',
+
+      name: '你好',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756124921,
+
+      updated_at: 1756124938
+
+    },
+
+    {
+
+      id: 'de560ef7-6c7a-4982-a3c1-f73a55e4496c',
+
+      name: '你好',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756124624,
+
+      updated_at: 1756124634
+
+    },
+
+    {
+
+      id: 'f6463189-842c-47f9-81b9-1ddc417843ee',
+
+      name: '你好',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756124396,
+
+      updated_at: 1756124456
+
+    },
+
+      id: 'b1518ca1-0239-42a3-854a-49975267e83d',
+
+    {
+
+      name: '新城疫是什么？',
+
+      inputs: {},
+
+      status: 'normal',
+
+      introduction: '',
+
+      created_at: 1756124317,
+
+      updated_at: 1756124317
+
+    },
+
+    {
+
+      id: 'e89bf4fc-17c1-4cbd-9019-11cccca86be8',
+
+      name: '你好',

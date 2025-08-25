@@ -6,7 +6,9 @@ import {
   deleteConversation, 
   renameConversation,
   initCloudService,
-  DataConverter
+  DataConverter,
+  testCloudFunction,
+  testSendMessage
 } from '../../utils/dify-api';
 
 interface Message {
@@ -1023,6 +1025,39 @@ Page({
         }
       }
     });
+  },
+
+  // 测试云函数连接
+  async testConnection() {
+    console.log('开始测试云函数连接...');
+    
+    try {
+      // 测试基本连接
+      const connectionTest = await testCloudFunction();
+      console.log('连接测试结果:', connectionTest);
+      
+      if (connectionTest) {
+        // 测试发送消息
+        const messageTest = await testSendMessage('测试消息');
+        console.log('消息测试结果:', messageTest);
+        
+        wx.showToast({
+          title: messageTest ? '测试成功' : '消息测试失败',
+          icon: messageTest ? 'success' : 'error'
+        });
+      } else {
+        wx.showToast({
+          title: '连接测试失败',
+          icon: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('测试过程中出错:', error);
+      wx.showToast({
+        title: '测试失败',
+        icon: 'error'
+      });
+    }
   },
 
   // 跳转到设置页面

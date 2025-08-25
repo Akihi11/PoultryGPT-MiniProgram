@@ -1,6 +1,5 @@
 // cloudfunctions/conversation-history/index.js
 const cloud = require('wx-server-sdk');
-const DIFY_CONFIG = require('./config');
 
 // 初始化云开发
 cloud.init({
@@ -9,6 +8,13 @@ cloud.init({
 
 // 获取数据库引用
 const db = cloud.database();
+
+// Dify API 配置
+const DIFY_CONFIG = {
+  API_KEY: 'app-EF0oHmInk30U17B9xX29YXaU',
+  API_URL: 'https://api.dify.ai/v1',
+  APP_ID: '79b14015-c5a2-4e34-b575-c69e702650c6'
+};
 
 /**
  * 生成用户标识
@@ -92,8 +98,8 @@ async function getConversations(event, context) {
   try {
     const { limit = 20, lastId = '' } = event;
     
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }
@@ -144,8 +150,8 @@ async function getMessages(event, context) {
       throw new Error('缺少必要参数：conversationId');
     }
 
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }
@@ -197,8 +203,8 @@ async function deleteConversation(event, context) {
       throw new Error('缺少必要参数：conversationId');
     }
 
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }
@@ -247,8 +253,8 @@ async function renameConversation(event, context) {
       throw new Error('必须提供新名称或启用自动生成');
     }
 
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }
@@ -298,8 +304,8 @@ async function saveConversationLocal(event, context) {
       throw new Error('缺少必要参数：conversationData');
     }
 
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }

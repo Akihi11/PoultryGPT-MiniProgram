@@ -212,3 +212,8 @@
     </scroll-view>
   </view>
 </view>
+
+<!-- 在适当位置添加测试按钮 -->
+<view class="test-button" bindtap="testConnection">
+  <text>测试连接</text>
+</view>

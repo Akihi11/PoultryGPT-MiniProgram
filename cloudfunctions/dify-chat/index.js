@@ -1,11 +1,17 @@
 // cloudfunctions/dify-chat/index.js
 const cloud = require('wx-server-sdk');
-const DIFY_CONFIG = require('./config');
 
 // 初始化云开发
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
+
+// Dify API 配置
+const DIFY_CONFIG = {
+  API_KEY: 'app-EF0oHmInk30U17B9xX29YXaU',
+  API_URL: 'https://api.dify.ai/v1',
+  APP_ID: '79b14015-c5a2-4e34-b575-c69e702650c6'
+};
 
 /**
  * 生成用户标识
@@ -33,7 +39,8 @@ async function sendToDifyAPI(url, data = {}, method = 'POST') {
     headers: {
       'Authorization': `Bearer ${DIFY_CONFIG.API_KEY}`,
       'Content-Type': 'application/json'
-    }
+    },
+    timeout: 25000 // 设置25秒超时，避免云函数3秒超时
   };
 
   return new Promise((resolve, reject) => {
@@ -62,6 +69,11 @@ async function sendToDifyAPI(url, data = {}, method = 'POST') {
       reject(error);
     });
 
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Dify API 请求超时'));
+    });
+
     if (method !== 'GET' && data) {
       req.write(JSON.stringify(data));
     }
@@ -78,37 +90,41 @@ async function sendToDifyAPI(url, data = {}, method = 'POST') {
  */
 async function sendChatMessage(event, context) {
   try {
+    console.log('sendChatMessage 被调用，event:', JSON.stringify(event, null, 2));
+    console.log('context:', JSON.stringify(context, null, 2));
+    
     const { query, conversationId, inputs = {} } = event;
     
-    if (!query) {
-      throw new Error('缺少必要参数：query');
-    }
-
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
-    if (!openId) {
-      throw new Error('无法获取用户身份信息');
-    }
-
-    const userId = generateUserId(openId);
+    console.log('解析的参数:', { query, conversationId, inputs });
     
-    // 构建请求数据
+    if (!query) {
+          console.error('缺少 query 参数');
+    throw new Error('缺少必要参数：query');
+  }
+
+  // 从 event.userInfo 中获取用户的 openId
+  const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
+  if (!openId) {
+    throw new Error('无法获取用户身份信息');
+  }
+
+  const userId = generateUserId(openId);
+    
+    // 构建请求数据 - 针对 Chatflow 优化
     const requestData = {
       inputs: inputs,
       query: query,
       response_mode: 'blocking', // 使用阻塞模式，因为小程序不支持SSE
       user: userId,
-      auto_generate_name: true
+      auto_generate_name: true,
+      // Chatflow 特定参数
+      conversation_id: conversationId || undefined,
+      files: [] // 如果需要文件上传，可以在这里添加
     };
 
-    // 如果有会话ID，添加到请求中
-    if (conversationId) {
-      requestData.conversation_id = conversationId;
-    }
+    console.log('发送到 Dify Chatflow 的请求数据:', JSON.stringify(requestData, null, 2));
 
-    console.log('发送到 Dify 的请求数据:', JSON.stringify(requestData, null, 2));
-
-    // 发送请求到 Dify API
+    // 发送请求到 Dify Chatflow API
     const response = await sendToDifyAPI('/chat-messages', requestData);
     
     console.log('Dify API 响应:', JSON.stringify(response, null, 2));
@@ -127,6 +143,43 @@ async function sendChatMessage(event, context) {
 
   } catch (error) {
     console.error('Dify聊天API调用失败:', error);
+    
+    // 特殊处理 "Workflow not published" 错误
+    if (error.message && error.message.includes('Workflow not published')) {
+      return {
+        success: false,
+        error: 'Dify 应用尚未发布，请先在 Dify 控制台发布应用（开发环境或生产环境均可）',
+        errorType: 'WORKFLOW_NOT_PUBLISHED'
+      };
+    }
+    
+    // 特殊处理其他常见错误
+    if (error.message && error.message.includes('API Error: 400')) {
+      return {
+        success: false,
+        error: `Dify 应用配置错误: ${error.message}`,
+        errorType: 'DIFY_CONFIG_ERROR'
+      };
+    }
+    
+    // 特殊处理 401 错误（认证失败）
+    if (error.message && error.message.includes('API Error: 401')) {
+      return {
+        success: false,
+        error: 'API 密钥无效，请检查 Dify 应用配置',
+        errorType: 'DIFY_AUTH_ERROR'
+      };
+    }
+    
+    // 特殊处理 403 错误（权限不足）
+    if (error.message && error.message.includes('API Error: 403')) {
+      return {
+        success: false,
+        error: '权限不足，请检查应用访问权限',
+        errorType: 'DIFY_PERMISSION_ERROR'
+      };
+    }
+    
     return {
       success: false,
       error: error.message,
@@ -143,8 +196,8 @@ async function sendChatMessage(event, context) {
  */
 async function getAppParameters(event, context) {
   try {
-    // 从上下文中获取用户的 openId
-    const openId = cloud.getWXContext().OPENID;
+    // 从 event.userInfo 中获取用户的 openId
+    const openId = event.userInfo?.openId || cloud.getWXContext().OPENID;
     if (!openId) {
       throw new Error('无法获取用户身份信息');
     }
@@ -199,21 +252,27 @@ async function getAppInfo(event) {
  */
 exports.main = async (event, context) => {
   console.log('dify-chat 云函数被调用，参数:', JSON.stringify(event, null, 2));
+  console.log('context:', JSON.stringify(context, null, 2));
   
   const { action } = event;
+  console.log('action:', action);
   
   try {
     switch (action) {
       case 'sendMessage':
+        console.log('执行 sendMessage 操作');
         return await sendChatMessage(event, context);
       
       case 'getParameters':
+        console.log('执行 getParameters 操作');
         return await getAppParameters(event, context);
       
       case 'getInfo':
+        console.log('执行 getInfo 操作');
         return await getAppInfo(event);
       
       default:
+        console.log('未知的操作类型:', action);
         return {
           success: false,
           error: `未知的操作类型: ${action}`,

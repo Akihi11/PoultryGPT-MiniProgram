@@ -71,37 +71,17 @@ npm install
    - App ID
    - API Base URL
 
-#### 3.2 配置 Dify API 密钥
+#### 3.2 更新云函数配置
 
-现在所有云函数都使用环境变量来管理 Dify 配置，提供更好的安全性。
-
-**选项 1: 通过微信云开发控制台设置（推荐）**
-
-1. 打开微信云开发控制台
-2. 进入 "云函数" 页面
-3. 选择要配置的云函数（dify-chat, conversation-history, upload-file, audio-to-text）
-4. 点击 "环境变量" 或 "版本管理"
-5. 添加以下环境变量：
-   ```
-   DIFY_API_KEY = your-actual-api-key
-   DIFY_API_URL = https://api.dify.ai/v1
-   DIFY_APP_ID = your-actual-app-id
-   ```
-
-**选项 2: 修改配置文件默认值**
-
-如果不设置环境变量，可以直接修改各云函数的 `config.js` 文件：
+在每个云函数的 `index.js` 文件中，更新 `DIFY_CONFIG` 对象：
 
 ```javascript
-// cloudfunctions/dify-chat/config.js
 const DIFY_CONFIG = {
-  API_KEY: process.env.DIFY_API_KEY || "your-actual-api-key",
-  API_URL: process.env.DIFY_API_URL || "https://api.dify.ai/v1",
-  APP_ID: process.env.DIFY_APP_ID || "your-actual-app-id",
+  API_KEY: "your-actual-api-key", // 替换为你的 API Key
+  API_URL: "https://api.dify.ai/v1", // 如果是私有部署，替换为你的 URL
+  APP_ID: "your-actual-app-id", // 替换为你的 App ID
 };
 ```
-
-> 📋 **注意**: 当前配置文件中已经包含了示例值，如果不更改，将使用这些默认配置。
 
 ### 4. 数据库配置（可选）
 

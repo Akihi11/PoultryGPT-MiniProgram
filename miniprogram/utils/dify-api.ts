@@ -57,6 +57,27 @@ function handleError(error: any, defaultMessage: string = '操作失败'): void 
     errorMessage = error.errMsg;
   }
   
+  // 特殊处理 Dify 相关错误
+  if (error?.errorType === 'WORKFLOW_NOT_PUBLISHED') {
+    wx.showModal({
+      title: '应用未发布',
+      content: 'Dify 应用尚未发布，请联系管理员发布应用后重试。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+    return;
+  }
+  
+  if (error?.errorType === 'DIFY_CONFIG_ERROR') {
+    wx.showModal({
+      title: '配置错误',
+      content: 'Dify 应用配置有误，请检查应用设置。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+    return;
+  }
+  
   wx.showToast({
     title: errorMessage,
     icon: 'none',
@@ -104,7 +125,19 @@ export async function sendChatMessage(
     }
   } catch (error) {
     wx.hideLoading();
-    handleError(error, '发送消息失败');
+    
+    // 特殊处理超时错误
+    if (error && typeof error === 'object' && 'errMsg' in error && typeof error.errMsg === 'string' && error.errMsg.includes('timeout')) {
+      wx.showModal({
+        title: '请求超时',
+        content: 'AI 响应时间较长，请稍后再试或尝试发送更简短的问题。',
+        showCancel: false,
+        confirmText: '知道了'
+      });
+    } else {
+      handleError(error, '发送消息失败');
+    }
+    
     return null;
   }
 }
@@ -508,3 +541,67 @@ export const DataConverter = {
     }
   }
 };
+
+/**
+ * 测试云函数连接
+ * @returns Promise<boolean>
+ */
+export async function testCloudFunction(): Promise<boolean> {
+  try {
+    console.log('开始测试云函数连接...');
+    
+    const result = await wx.cloud.callFunction({
+      name: 'dify-chat',
+      data: {
+        action: 'getInfo'
+      }
+    });
+
+    console.log('云函数测试结果:', result);
+    
+    const response = result.result as ApiResponse;
+    if (response.success) {
+      console.log('云函数连接成功');
+      return true;
+    } else {
+      console.error('云函数返回错误:', response);
+      return false;
+    }
+  } catch (error) {
+    console.error('云函数测试失败:', error);
+    return false;
+  }
+}
+
+/**
+ * 测试发送消息功能
+ * @param testMessage 测试消息
+ * @returns Promise<boolean>
+ */
+export async function testSendMessage(testMessage: string = '你好'): Promise<boolean> {
+  try {
+    console.log('开始测试发送消息...');
+    
+    const result = await wx.cloud.callFunction({
+      name: 'dify-chat',
+      data: {
+        action: 'sendMessage',
+        query: testMessage
+      }
+    });
+
+    console.log('发送消息测试结果:', result);
+    
+    const response = result.result as ApiResponse;
+    if (response.success) {
+      console.log('发送消息测试成功');
+      return true;
+    } else {
+      console.error('发送消息测试失败:', response);
+      return false;
+    }
+  } catch (error) {
+    console.error('发送消息测试异常:', error);
+    return false;
+  }
+}
