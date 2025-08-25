@@ -1,4 +1,13 @@
 // pages/chat/index.ts
+import { 
+  sendChatMessage, 
+  getConversations, 
+  getMessages, 
+  deleteConversation, 
+  renameConversation,
+  initCloudService,
+  DataConverter
+} from '../../utils/dify-api';
 
 interface Message {
   id: string;
@@ -7,6 +16,8 @@ interface Message {
   workflow?: WorkflowStep[];
   workflowExpanded?: boolean;
   timestamp: number;
+  conversationId?: string;
+  messageId?: string;
 }
 
 interface WorkflowStep {
@@ -20,15 +31,19 @@ interface HistoryItem {
   preview: string;
   time: string;
   messages: Message[];
+  conversationId?: string;
 }
 
 Page({
   data: {
     // 当前模型
-    currentModel: 'PoultryGPT-Turbo',
+    currentModel: 'Dify Workflow',
     
     // 消息列表
     messages: [] as Message[],
+    
+    // 当前会话ID
+    currentConversationId: '',
     
     // 输入框内容
     inputValue: '',
@@ -133,14 +148,14 @@ Page({
   },
 
   onLoad() {
+    // 初始化云开发
+    initCloudService();
+    
     // 获取系统信息
     this.getSystemInfo();
     
     // 加载历史记录
     this.loadHistoryList();
-    
-    // 初始化示例对话
-    this.initSampleChat();
     
     // 监听键盘高度变化
     this.setupKeyboardListener();
@@ -186,77 +201,24 @@ Page({
   },
 
   // 加载历史记录
-  loadHistoryList() {
-    // 这里可以从本地存储或服务器加载历史记录
-    // 目前使用示例数据
+  async loadHistoryList() {
+    try {
+      const result = await getConversations(20);
+      if (result && result.conversations) {
+        const historyList = result.conversations.map(conv => 
+          DataConverter.convertDifyConversationToLocal(conv)
+        );
+        this.setData({
+          historyList: historyList
+        });
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+      // 如果加载失败，保持原有的示例数据
+    }
   },
 
-  // 初始化示例对话
-  initSampleChat() {
-    const sampleMessages: Message[] = [
-      {
-        id: 'user-1',
-        type: 'user',
-        content: '你好，我想了解一下肉鸡养殖的基本要求有哪些？',
-        timestamp: Date.now() - 60000
-      },
-      {
-        id: 'ai-1',
-        type: 'ai',
-        content: `<h2>🐔 肉鸡养殖的基本要求</h2>
-<p>肉鸡养殖的基本要求主要包括以下几个关键方面：</p>
-<h3>🏠 1. 鸡舍环境</h3>
-<ul>
-<li><strong>温度控制</strong>：保持适宜的温度（18-25℃）</li>
-<li><strong>湿度管理</strong>：控制湿度在50-70%之间</li>
-<li><strong>通风系统</strong>：确保良好的空气流通</li>
-</ul>
-<h3>🍽️ 2. 饲料管理</h3>
-<ul>
-<li>提供 <strong>营养均衡</strong> 的饲料配方</li>
-<li>实行定时定量喂养制度</li>
-<li>根据生长阶段调整饲料结构</li>
-</ul>
-<h3>💧 3. 饮水系统</h3>
-<ul>
-<li>确保清洁充足的饮水供应</li>
-<li>定期清洗和消毒饮水设备</li>
-<li>监测水质安全</li>
-</ul>
-<h3>🛡️ 4. 疫病防控</h3>
-<ul>
-<li>制定完善的免疫程序</li>
-<li>建立严格的生物安全措施</li>
-<li>定期健康检查</li>
-</ul>
-<h3>📏 5. 密度控制</h3>
-<ul>
-<li>合理安排饲养密度</li>
-<li>避免过度拥挤导致的应激</li>
-<li>根据鸡舍面积科学配置</li>
-</ul>
-<blockquote>
-<p><strong>提示</strong>：以上各个方面相互关联，需要综合考虑和统一管理。</p>
-</blockquote>
-<p>您想了解哪个方面的详细信息呢？</p>`,
-        workflow: [
-          { name: '问题分析', status: 'completed' },
-          { name: '知识库检索', status: 'completed' },
-          { name: '专业知识匹配', status: 'completed' },
-          { name: '内容生成', status: 'completed' },
-          { name: '格式化输出', status: 'completed' }
-        ],
-        workflowExpanded: false,
-        timestamp: Date.now()
-      }
-    ];
-    
-    this.setData({
-      messages: sampleMessages
-    }, () => {
-      this.scrollToBottom();
-    });
-  },
+
 
   // 输入框变化
   onInputChange(e: any) {
@@ -266,8 +228,8 @@ Page({
   },
 
   // 发送消息
-  sendMessage() {
-    const { inputValue } = this.data;
+  async sendMessage() {
+    const { inputValue, currentConversationId } = this.data;
     if (!inputValue.trim()) return;
 
     // 添加用户消息
@@ -286,13 +248,92 @@ Page({
       this.scrollToBottom();
     });
 
-    // 模拟AI回复
-    setTimeout(() => {
-      this.generateAIResponse(userMessage.content);
-    }, 1000);
+    try {
+      // 调用 Dify API
+      const response = await sendChatMessage(
+        userMessage.content, 
+        currentConversationId || undefined
+      );
+
+      if (response) {
+        // 构建AI回复消息
+        const aiMessage: Message = {
+          id: response.messageId,
+          type: 'ai',
+          content: response.answer,
+          timestamp: response.created_at * 1000,
+          conversationId: response.conversationId,
+          messageId: response.messageId,
+          workflow: this.generateWorkflowFromMetadata(response),
+          workflowExpanded: false
+        };
+
+        // 更新当前会话ID
+        if (response.conversationId && !currentConversationId) {
+          this.setData({
+            currentConversationId: response.conversationId
+          });
+        }
+
+        this.setData({
+          messages: [...this.data.messages, aiMessage],
+          isTyping: false
+        }, () => {
+          this.scrollToBottom();
+        });
+
+        // 刷新历史记录
+        this.loadHistoryList();
+      } else {
+        // API调用失败，显示错误消息
+        this.showErrorMessage('抱歉，服务暂时不可用，请稍后再试。');
+      }
+    } catch (error) {
+      console.error('发送消息失败:', error);
+      this.showErrorMessage('发送失败，请检查网络连接。');
+    }
   },
 
-  // 生成AI回复
+  // 从响应元数据生成工作流
+  generateWorkflowFromMetadata(response: any): WorkflowStep[] {
+    // 基于 Dify 响应生成工作流步骤
+    const baseWorkflow: WorkflowStep[] = [
+      { name: '问题分析', status: 'completed' },
+      { name: '知识库检索', status: 'completed' },
+      { name: '专业知识匹配', status: 'completed' },
+      { name: '内容生成', status: 'completed' }
+    ];
+
+    // 如果有检索资源，添加相关步骤
+    if (response.retriever_resources && response.retriever_resources.length > 0) {
+      baseWorkflow.splice(1, 0, { name: '文档检索', status: 'completed' });
+    }
+
+    return baseWorkflow;
+  },
+
+  // 显示错误消息
+  showErrorMessage(message: string) {
+    const errorMessage: Message = {
+      id: `error-${Date.now()}`,
+      type: 'ai',
+      content: `<p style="color: #dc2626;">❌ ${message}</p>`,
+      timestamp: Date.now(),
+      workflow: [
+        { name: '错误处理', status: 'completed' }
+      ],
+      workflowExpanded: false
+    };
+
+    this.setData({
+      messages: [...this.data.messages, errorMessage],
+      isTyping: false
+    }, () => {
+      this.scrollToBottom();
+    });
+  },
+
+  // 生成AI回复（保留原有方法作为备用）
   generateAIResponse(userInput: string) {
     let workflow: WorkflowStep[] = [];
     let content = '';
@@ -739,22 +780,48 @@ Page({
   },
 
   // 重命名历史项目
-  renameHistoryItem(itemId: string, newTitle: string) {
-    const historyList = this.data.historyList.map(item => {
-      if (item.id === itemId) {
-        return { ...item, title: newTitle.trim() };
+  async renameHistoryItem(itemId: string, newTitle: string) {
+    try {
+      // 找到对应的历史项目
+      const item = this.data.historyList.find(item => item.id === itemId);
+      if (item && item.conversationId) {
+        // 调用 Dify API 重命名会话
+        const success = await renameConversation(item.conversationId, newTitle.trim());
+        if (success) {
+          // 更新本地数据
+          const historyList = this.data.historyList.map(item => {
+            if (item.id === itemId) {
+              return { ...item, title: newTitle.trim() };
+            }
+            return item;
+          });
+          this.setData({
+            historyList
+          });
+        }
+      } else {
+        // 如果没有会话ID，只更新本地数据
+        const historyList = this.data.historyList.map(item => {
+          if (item.id === itemId) {
+            return { ...item, title: newTitle.trim() };
+          }
+          return item;
+        });
+        this.setData({
+          historyList
+        });
+        wx.showToast({
+          title: '重命名成功',
+          icon: 'success'
+        });
       }
-      return item;
-    });
-    
-    this.setData({
-      historyList
-    });
-    
-    wx.showToast({
-      title: '重命名成功',
-      icon: 'success'
-    });
+    } catch (error) {
+      console.error('重命名失败:', error);
+      wx.showToast({
+        title: '重命名失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 确认删除
@@ -782,17 +849,38 @@ Page({
   },
 
   // 删除历史项目
-  deleteHistoryItem(itemId: string) {
-    const historyList = this.data.historyList.filter(item => item.id !== itemId);
-    
-    this.setData({
-      historyList
-    });
-    
-    wx.showToast({
-      title: '删除成功',
-      icon: 'success'
-    });
+  async deleteHistoryItem(itemId: string) {
+    try {
+      // 找到对应的历史项目
+      const item = this.data.historyList.find(item => item.id === itemId);
+      if (item && item.conversationId) {
+        // 调用 Dify API 删除会话
+        const success = await deleteConversation(item.conversationId);
+        if (success) {
+          // 从本地列表中移除
+          const historyList = this.data.historyList.filter(item => item.id !== itemId);
+          this.setData({
+            historyList
+          });
+        }
+      } else {
+        // 如果没有会话ID，只从本地删除
+        const historyList = this.data.historyList.filter(item => item.id !== itemId);
+        this.setData({
+          historyList
+        });
+        wx.showToast({
+          title: '删除成功',
+          icon: 'success'
+        });
+      }
+    } catch (error) {
+      console.error('删除历史记录失败:', error);
+      wx.showToast({
+        title: '删除失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 点击外部关闭滑动
@@ -815,7 +903,7 @@ Page({
 
 
   // 打开历史记录
-  openHistory(e: any) {
+  async openHistory(e: any) {
     const { id } = e.currentTarget.dataset;
     
     // 如果当前有展开的滑动操作，先关闭
@@ -824,12 +912,77 @@ Page({
       return; // 第一次点击只关闭滑动，不打开历史记录
     }
     
-    // 这里可以加载对应的历史记录消息
-    console.log('打开历史记录:', id);
-    
-    this.setData({
-      showSidebar: false
-    });
+    try {
+      // 找到对应的历史项目
+      const item = this.data.historyList.find(item => item.id === id);
+      if (item && item.conversationId) {
+        wx.showLoading({
+          title: '加载中...',
+          mask: true
+        });
+
+        // 获取会话消息
+        const result = await getMessages(item.conversationId);
+        if (result && result.messages) {
+          // 转换消息格式
+          const messages: Message[] = [];
+          result.messages.reverse().forEach(msg => {
+            // 添加用户消息
+            if (msg.query) {
+              messages.push({
+                id: `user-${msg.id}`,
+                type: 'user',
+                content: msg.query,
+                timestamp: msg.created_at * 1000
+              });
+            }
+            // 添加AI回复
+            if (msg.answer) {
+              messages.push({
+                id: msg.id,
+                type: 'ai',
+                content: msg.answer,
+                timestamp: msg.created_at * 1000,
+                conversationId: msg.conversation_id,
+                messageId: msg.id,
+                workflow: [
+                  { name: '问题分析', status: 'completed' },
+                  { name: '知识库检索', status: 'completed' },
+                  { name: '内容生成', status: 'completed' }
+                ],
+                workflowExpanded: false
+              });
+            }
+          });
+
+          // 更新当前会话
+          this.setData({
+            messages: messages,
+            currentConversationId: item.conversationId,
+            showSidebar: false
+          }, () => {
+            this.scrollToBottom();
+          });
+        }
+        
+        wx.hideLoading();
+      } else {
+        // 如果没有会话ID，只关闭侧边栏
+        this.setData({
+          showSidebar: false
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('加载历史记录失败:', error);
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+      this.setData({
+        showSidebar: false
+      });
+    }
   },
 
   // 切换工作流展开状态
@@ -859,7 +1012,8 @@ Page({
         if (res.confirm) {
           this.setData({
             messages: [],
-            inputValue: ''
+            inputValue: '',
+            currentConversationId: '' // 清空当前会话ID
           });
           
           wx.showToast({

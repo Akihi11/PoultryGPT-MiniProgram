@@ -4,13 +4,28 @@ interface AppGlobalData {
   userInfo?: WechatMiniprogram.UserInfo;
   systemInfo?: WechatMiniprogram.SystemInfo;
   currentConversation?: any;
+  statusBarHeight?: number;
 }
 
-App<IAppOption>({
-  globalData: {} as AppGlobalData,
+interface IAppMethods {
+  getSystemInfo(): void;
+  initUserSettings(): void;
+  initCloudService(): void;
+}
+
+App<IAppOption & IAppMethods>({
+  globalData: {
+    userInfo: undefined,
+    systemInfo: undefined,
+    currentConversation: undefined,
+    statusBarHeight: undefined
+  } as AppGlobalData,
   
   onLaunch() {
     console.log('PoultryGPT 小程序启动');
+    
+    // 初始化云开发
+    this.initCloudService();
     
     // 获取系统信息
     this.getSystemInfo();
@@ -51,18 +66,20 @@ App<IAppOption>({
   getSystemInfo() {
     try {
       const systemInfo = wx.getSystemInfoSync();
-      this.globalData.systemInfo = systemInfo;
+      (this.globalData as AppGlobalData).systemInfo = systemInfo;
       
       // 设置状态栏高度CSS变量
       const statusBarHeight = systemInfo.statusBarHeight || 20;
-      wx.nextTick(() => {
-        const query = wx.createSelectorQuery();
-        query.select('page').exec((res) => {
-          if (res[0]) {
-            res[0].node.style.setProperty('--status-bar-height', statusBarHeight + 'px');
-          }
-        });
-      });
+      
+      // 设置全局CSS变量
+      try {
+        const app = getApp();
+        if (app.globalData) {
+          (app.globalData as AppGlobalData).statusBarHeight = statusBarHeight;
+        }
+      } catch (e) {
+        console.warn('设置状态栏高度失败:', e);
+      }
     } catch (error) {
       console.error('获取系统信息失败:', error);
     }
@@ -97,5 +114,23 @@ App<IAppOption>({
     wx.reLaunch({
       url: '/pages/chat/index'
     });
+  },
+
+  // 初始化云开发
+  initCloudService() {
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+      return;
+    }
+
+    try {
+      wx.cloud.init({
+        env: "poultrygpt-6gmda5fva5c75a84", 
+        traceUser: true
+      });
+      console.log('云开发初始化成功');
+    } catch (error) {
+      console.error('云开发初始化失败:', error);
+    }
   }
 })

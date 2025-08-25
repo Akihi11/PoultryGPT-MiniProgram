@@ -1,0 +1,26 @@
+{
+  "description": "云函数配置文件",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "functions": {
+    "dify-chat": {
+      "timeout": 60,
+      "memorySize": 256,
+      "runtime": "Nodejs18.15"
+    },
+    "conversation-history": {
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs18.15"
+    },
+    "upload-file": {
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs18.15"
+    },
+    "audio-to-text": {
+      "timeout": 60,
+      "memorySize": 512,
+      "runtime": "Nodejs18.15"
+    }
+  }
+}
